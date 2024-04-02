@@ -1,6 +1,7 @@
 const ws = new WebSocket('ws://localhost:3000');
 
 const playerContainer = document.querySelector('.player-container');
+const roundTimer = document.querySelector('.round-timer')
 
 ws.onopen = () => {
     console.log('Successfully connected to server!');
@@ -12,7 +13,21 @@ ws.onmessage = (event) => {
         case "UPDATE":
             updatePlayerButtons(jsonParse.numberOfPlayers, jsonParse.playerIndex);
             break;
+        case "LOOP":
+            setRoundCountdown(jsonParse.roundTime)
+            break;
     }
+}
+
+function setRoundCountdown(roundTime) {
+    currentTime = roundTime;
+    var countdownFunction = setInterval(function() {
+        roundTimer.textContent = "Time Remaining: " + roundTime;
+        roundTime = roundTime - 1;
+        if(roundTime < 0) {
+            clearInterval(countdownFunction);
+        }
+    }, 1000)
 }
 
 function updatePlayerButtons(numberOfPlayers, playerIndex) {

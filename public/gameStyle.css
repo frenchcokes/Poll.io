@@ -5,6 +5,11 @@
     margin: 0 auto;
 }
 
+.round-timer {
+    font-size: 30px;
+    text-align: center;
+}
+
 .title {
     text-align: center;
     font-size: 70px;

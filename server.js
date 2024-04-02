@@ -24,6 +24,7 @@ app.get('/game', async(req, res) => {
 wss.on('connection', (ws, req) => {
     clients.add(ws);
     console.log("A client connected! There are now: " + clients.size + " connected.");
+    setRoundCountdown(5);
 
     update();
 
@@ -49,12 +50,19 @@ function update() {
     })
 }
 
-/*
-setInterval(loop, 5000);
-function loop() {
-    update();
+function setRoundCountdown(duration) {
+
+    wss.clients.forEach((client) => {
+        if(client.readyState == WebSocket.OPEN) {
+            const data = {
+                type : "LOOP",
+                roundTime : duration
+            }
+            client.send(JSON.stringify(data));
+        }
+    })
 }
-*/
+
 
 server.listen(3000, () => {
     console.log('Server started on http://localhost:3000');
