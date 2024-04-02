@@ -3,39 +3,50 @@
     <head>
         <meta charset="UTF-8">
         <title>Poll.io</title>
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="gameStyle.css">
     </head>
     <body>
         <div class="title">Poll.io</div>
         <div class="general-container">
             <div class="player-container">
-                <div class="player-box">
-                    <div class="player-title">
-                        Player 1
+                <!-- FORMAT
+                    <div class="player-box">
+                        <div class="player-title">
+                            PLAYER NAME
+                        </div>
+                        <div class="player-score">
+                            SCORE
+                        </div>
                     </div>
-                    <div class="player-score">
-                        1000000
-                    </div>
-                </div>
-                <div class="player-box"></div>
-                <div class="player-box"></div>
-                <div class="player-box"></div>
-                <div class="player-box"></div>
-                <div class="player-box"></div>
-                <div class="player-box"></div>
-                <div class="player-box"></div>
+                -->
             </div>
             <div class="prompt-container">
                 <div class="prompt">
-                    Who is most likely to play among us? adwad ad wad awd awd awd aw aw
+                    Among us
                 </div> 
                 <div class="votes-container">
-
+                    <div class="votes-row">
+                        <div class="vote-button"></div>
+                        <div class="vote-button"></div>
+                        <div class="vote-button"></div>
+                        <div class="vote-button"></div>
+                    </div>
+                    <div class="votes-row">
+                        <div class="vote-button"></div>
+                        <div class="vote-button"></div>
+                        <div class="vote-button"></div>
+                        <div class="vote-button"></div>
+                    </div>
+                    <button class="votes-input-send">Vote!</button>
                 </div>
-                <div class="formSubmit"></div>
+                <div class="formSubmit">
+                    <input type="text" class="message-input" placeholder="Type an answer...">
+                    
+                    <button class="message-input-send">Submit!</button>
+                </div>
             </div>
         </div>
 
-        <script src="script.js"></script>
+        <script src="gameScript.js"></script>
     </body>
 </html>
