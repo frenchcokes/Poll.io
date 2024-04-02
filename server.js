@@ -23,14 +23,16 @@ app.get('/game', async(req, res) => {
 
 wss.on('connection', (ws, req) => {
     clients.add(ws);
-    console.log("A client connected! There are now: " + clients.size + " connected.");
+    const currentDate = new Date();
+    console.log("(" + currentDate + ") A client connected! There are now: " + clients.size + " connected.");
     setRoundCountdown(5);
 
     update();
 
     ws.on('close', function() {
+        const currentDate = new Date();
         clients.delete(ws);
-        console.log("A client connected! There are now: " + clients.size + " connected.");
+        console.log("(" + currentDate + ") A client connected! There are now: " + clients.size + " connected.");
         update();
     })
 })

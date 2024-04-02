@@ -5,9 +5,29 @@
     margin: 0 auto;
 }
 
+.upper-bar-container {
+    margin: 0 auto;
+    width: 1000px;
+    background-color: yellow;
+    display: flex;
+    justify-content: space-between;
+}
+
+.outer-container {
+  background-color: red;
+  width: 1100px;
+  height: 720px;
+  margin: 0 auto;
+}
+
+.round-display {
+    font-size: 30px;
+    margin-left: 5px;
+}
+
 .round-timer {
     font-size: 30px;
-    text-align: center;
+    margin-right: 5px;
 }
 
 .title {
@@ -20,6 +40,15 @@
     height: 68px;
     background-color: aquamarine;
     margin-top: 5px;
+    position: relative;
+}
+
+.player-score-change-box {
+    position: absolute;
+    color: red;
+    font-size: 35px;
+    left: 200px;
+    bottom: 18px;
 }
 
 .prompt {
@@ -29,7 +58,8 @@
     height: 240px;
     background-color: aquamarine;
     justify-content: center;
-    text-align: center;
+    display: flex;
+    aligh-items: center;
 }
 
 .player-title {

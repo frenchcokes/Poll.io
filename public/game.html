@@ -6,11 +6,15 @@
         <link rel="stylesheet" href="gameStyle.css">
     </head>
     <body>
-        <div class="title">Poll.io</div>
-        <div class="round-timer"></div>
-        <div class="general-container">
-            <div class="player-container">
-                <!-- FORMAT
+        <div class="outer-container">
+            <div class="title">Poll.io</div>
+            <div class="upper-bar-container">
+                <div class="round-display">Round 10</div>
+                <div class="round-timer">Remaining Time: 100</div>
+            </div>
+            
+            <div class="general-container">
+                <div class="player-container">
                     <div class="player-box">
                         <div class="player-title">
                             PLAYER NAME
@@ -18,36 +22,55 @@
                         <div class="player-score">
                             SCORE
                         </div>
+                        <div class="player-score-change-box">(+1000)</div>
                     </div>
-                -->
-            </div>
-            <div class="prompt-container">
-                <div class="prompt">
-                    Among us
-                </div> 
-                <div class="votes-container">
-                    <div class="votes-row">
-                        <div class="vote-button"></div>
-                        <div class="vote-button"></div>
-                        <div class="vote-button"></div>
-                        <div class="vote-button"></div>
+                    <div class="player-box">
+                        <div class="player-title">
+                            PLAYER NAME
+                        </div>
+                        <div class="player-score">
+                            SCORE
+                        </div>
+                        <div class="player-score-change-box">(+1000)</div>
                     </div>
-                    <div class="votes-row">
-                        <div class="vote-button"></div>
-                        <div class="vote-button"></div>
-                        <div class="vote-button"></div>
-                        <div class="vote-button"></div>
-                    </div>
-                    <button class="votes-input-send">Vote!</button>
+                    <!-- FORMAT
+                        <div class="player-box">
+                            <div class="player-title">
+                                PLAYER NAME
+                            </div>
+                            <div class="player-score">
+                                SCORE
+                            </div>
+                        </div>
+                    -->
                 </div>
-                <div class="formSubmit">
-                    <input type="text" class="message-input" placeholder="Type an answer...">
-                    
-                    <button class="message-input-send">Submit!</button>
+                <div class="prompt-container">
+                    <div class="prompt">
+                         Among us
+                    </div> 
+                    <div class="votes-container">
+                        <div class="votes-row">
+                            <div class="vote-button"></div>
+                            <div class="vote-button"></div>
+                            <div class="vote-button"></div>
+                            <div class="vote-button"></div>
+                        </div>
+                        <div class="votes-row">
+                            <div class="vote-button"></div>
+                            <div class="vote-button"></div>
+                            <div class="vote-button"></div>
+                            <div class="vote-button"></div>
+                        </div>
+                        <button class="votes-input-send">Vote!</button>
+                    </div>
+                    <div class="formSubmit">
+                        <input type="text" class="message-input" placeholder="Type an answer...">
+
+                        <button class="message-input-send">Submit!</button>
+                    </div>
                 </div>
             </div>
         </div>
-
         <script src="gameScript.js"></script>
     </body>
 </html>
