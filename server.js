@@ -7,7 +7,9 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 const clients = new Set();
-const playerNames = new Set(["Player 1", "Player 2", "Player 3", "Player 4"]);
+const playerNames = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Player 8"];
+const playerAnswers = ["Apple", "Brave", "Click", "Diver", "Eagle", "Flute", "Grape", "House"];
+const playerScores = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
 
 const path = require('path');
 
@@ -25,8 +27,8 @@ wss.on('connection', (ws, req) => {
     clients.add(ws);
     const currentDate = new Date();
     console.log("(" + currentDate + ") A client connected! There are now: " + clients.size + " connected.");
-    setRoundCountdown(5);
-
+    //setRoundCountdown(5);
+    startVoteUI();
     update();
 
     ws.on('close', function() {
@@ -40,11 +42,19 @@ wss.on('connection', (ws, req) => {
 function update() {
     x = -1;
     wss.clients.forEach((client) => {
+        var length = clients.size;
+        var outputNames = [];
+        var outputScores = [];
+        for (var i = 0; i < length; i++) {
+            outputNames.push(playerNames[i]);
+            outputScores.push(playerScores[i]);
+        }
         x = x + 1;
         if(client.readyState == WebSocket.OPEN) {
             const data = {
                 type : "UPDATE",
-                numberOfPlayers : clients.size,
+                playerNames: outputNames,
+                playerScores: outputScores,
                 playerIndex: x
             }
             client.send(JSON.stringify(data));
@@ -53,7 +63,6 @@ function update() {
 }
 
 function setRoundCountdown(duration) {
-
     wss.clients.forEach((client) => {
         if(client.readyState == WebSocket.OPEN) {
             const data = {
@@ -65,6 +74,25 @@ function setRoundCountdown(duration) {
     })
 }
 
+function startVoteUI() {
+    wss.clients.forEach((client) => {
+        var length = clients.size;
+        var outputNames = [];
+        var outputAnswers = [];
+        for (var i = 0; i < length; i++) {
+            outputNames.push(playerNames[i]);
+            outputAnswers.push(playerAnswers[i]);
+        }
+        if(client.readyState == WebSocket.OPEN) {
+            const data = {
+                type : "STARTVOTE",
+                playerNames: outputNames,
+                playerAnswers: outputAnswers
+            }
+            client.send(JSON.stringify(data));
+        }
+    })
+}
 
 server.listen(3000, () => {
     console.log('Server started on http://localhost:3000');

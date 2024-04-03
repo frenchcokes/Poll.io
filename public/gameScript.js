@@ -11,13 +11,13 @@ ws.onmessage = (event) => {
     jsonParse = JSON.parse(event.data);
     switch(jsonParse.type) {
         case "UPDATE":
-            updatePlayerButtons(jsonParse.numberOfPlayers, jsonParse.playerIndex);
+            updatePlayerButtons(jsonParse.playerNames, jsonParse.playerScores, jsonParse.playerIndex);
             break;
         case "LOOP":
             setRoundCountdown(jsonParse.roundTime)
             break;
         case "STARTVOTE":
-            startVoteUI(jsonParse.players);
+            startVoteUI(jsonParse.playerNames, jsonParse.playerAnswers);
             break;
     }
 }
@@ -33,9 +33,10 @@ function setRoundCountdown(roundTime) {
     }, 1000)
 }
 
-function updatePlayerButtons(numberOfPlayers, playerIndex) {
+function updatePlayerButtons(playerNames, playerScores, playerIndex) {
     playerContainer.innerHTML = ''; //CLEARS CHILDREN
-    const x = numberOfPlayers;
+    const x = playerNames.length;
+
     for (let i = 0; i < x; i++) {
 
         const playerBoxDiv = document.createElement('div');
@@ -43,11 +44,11 @@ function updatePlayerButtons(numberOfPlayers, playerIndex) {
 
         const playerTitleDiv = document.createElement('div');
         playerTitleDiv.classList.add('player-title');
-        playerTitleDiv.textContent = "PLAYER";
+        playerTitleDiv.textContent = playerNames[i];
 
         const playerScoreDiv = document.createElement('div');
         playerScoreDiv.classList.add('player-score');
-        playerScoreDiv.textContent = "SCORE";
+        playerScoreDiv.textContent = playerScores[i];
         
         if(i == playerIndex) {
             playerBoxDiv.style.backgroundColor = "red";
@@ -61,12 +62,13 @@ function updatePlayerButtons(numberOfPlayers, playerIndex) {
 }
 
 
-startVoteUI(["BOB", "JOHN", "MITCH", "SCOTT", "REEVES", "BOBBERT", "STEVEN", "MAX"], ["ROCKS", "SOCKS", "BLOCKS", "SPAGHETTI", "STEW", "BACON", "CHEDDAR", "PANTS"])
 var selectedVoteButton = -1;
 function startVoteUI(playerNames, playerAnswers) {
     var numberOfButtons = playerNames.length;
 
     var voteRows = document.getElementsByClassName("votes-row");
+    voteRows[0].innerHTML = "";
+    voteRows[1].innerHTML = "";
     for (var i = 0; i < numberOfButtons; i++) {
             const voteButton = document.createElement('div');
             voteButton.classList.add('vote-button');
