@@ -74,7 +74,9 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
 }
 
 
+hideAllGameElements();
 function hideAllGameElements() {
+    //NEEDS TO BE FIXED
     //Empty Prompt
     promptText.innerText = "";
 
@@ -91,8 +93,10 @@ function hideAllGameElements() {
 
 var selectedVoteButton = -1;
 function startVoteUI(playerNames, playerAnswers) {
+    selectedVoteButton = -1;
     var numberOfButtons = playerNames.length;
 
+    voteInputSendButton.style.visibility = "visible";
     voteRows[0].innerHTML = "";
     voteRows[1].innerHTML = "";
     for (var i = 0; i < numberOfButtons; i++) {
