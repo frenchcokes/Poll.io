@@ -16,6 +16,9 @@ ws.onmessage = (event) => {
         case "LOOP":
             setRoundCountdown(jsonParse.roundTime)
             break;
+        case "STARTVOTE":
+            startVoteUI(jsonParse.players);
+            break;
     }
 }
 
@@ -54,5 +57,55 @@ function updatePlayerButtons(numberOfPlayers, playerIndex) {
         playerBoxDiv.appendChild(playerScoreDiv);
         playerContainer.appendChild(playerBoxDiv);
 
+    }
+}
+
+
+startVoteUI(["BOB", "JOHN", "MITCH", "SCOTT", "REEVES", "BOBBERT", "STEVEN", "MAX"], ["ROCKS", "SOCKS", "BLOCKS", "SPAGHETTI", "STEW", "BACON", "CHEDDAR", "PANTS"])
+var selectedVoteButton = -1;
+function startVoteUI(playerNames, playerAnswers) {
+    var numberOfButtons = playerNames.length;
+
+    var voteRows = document.getElementsByClassName("votes-row");
+    for (var i = 0; i < numberOfButtons; i++) {
+            const voteButton = document.createElement('div');
+            voteButton.classList.add('vote-button');
+            voteButton.setAttribute("id", i);
+
+            const voteButtonVotesText = document.createElement('div');
+            voteButtonVotesText.classList.add('vote-button-votes-text');
+            voteButtonVotesText.textContent = " ";
+
+            const voteButtonPromptText = document.createElement('div');
+            voteButtonPromptText.classList.add('vote-button-prompt-text');
+            voteButtonPromptText.textContent = playerAnswers[i];
+
+            voteButton.appendChild(voteButtonVotesText);
+            voteButton.appendChild(voteButtonPromptText);
+        if(i < 4) {
+            voteRows[0].appendChild(voteButton);
+        }
+        else {
+            voteRows[1].appendChild(voteButton);
+        }
+    }
+
+    var divs = document.getElementsByClassName("vote-button");
+    for (var i = 0; i < divs.length; i++) {
+        (function(div) {
+            div.addEventListener('click', function() {
+                if(selectedVoteButton === -1) {
+                    div.style.backgroundColor = "rgb(255, 0, 0)";
+                    selectedVoteButton = div.id;
+                } else if (selectedVoteButton === div.id) {
+                    div.style.backgroundColor = "rgb(0, 128, 0)";
+                    selectedVoteButton = -1;
+                } else if (selectedVoteButton !== div.id) {
+                    divs[selectedVoteButton].style.backgroundColor = "rgb(0, 128, 0)";
+                    div.style.backgroundColor = "rgb(255, 0, 0)";
+                    selectedVoteButton = div.id;
+                }
+            });
+        })(divs[i]);
     }
 }
