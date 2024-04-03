@@ -3,6 +3,14 @@ const ws = new WebSocket('ws://localhost:3000');
 const playerContainer = document.querySelector('.player-container');
 const roundTimer = document.querySelector('.round-timer')
 
+const promptText = document.getElementsByClassName(".prompt");
+
+const voteRows = document.getElementsByClassName(".votes-row");
+const voteInputSendButton = document.getElementsByClassName(".votes-input-send");
+
+const messageInput = document.getElementsByClassName(".message-input");
+const messageInputSend = document.getElementsByClassName(".message-input-send");
+
 ws.onopen = () => {
     console.log('Successfully connected to server!');
 }
@@ -18,6 +26,10 @@ ws.onmessage = (event) => {
             break;
         case "STARTVOTE":
             startVoteUI(jsonParse.playerNames, jsonParse.playerAnswers);
+            break;
+        case "VOTERESULTS":
+            break;
+        case "FINALRESULTS":
             break;
     }
 }
@@ -62,11 +74,25 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
 }
 
 
+function hideAllGameElements() {
+    //Empty Prompt
+    promptText.innerText = "";
+
+    //Empty Voting Elements
+    voteRows[0].innerHTML = "";
+    voteRows[1].innerHTML = "";
+    voteInputSendButton.style.visibility = "hidden";
+
+    //Empty Message Input Elements
+    messageInput.style.visibility = "hidden";
+    messageInput.value = 0;
+    messageInputSend.style.visibility = "hidden";
+}
+
 var selectedVoteButton = -1;
 function startVoteUI(playerNames, playerAnswers) {
     var numberOfButtons = playerNames.length;
 
-    var voteRows = document.getElementsByClassName("votes-row");
     voteRows[0].innerHTML = "";
     voteRows[1].innerHTML = "";
     for (var i = 0; i < numberOfButtons; i++) {
