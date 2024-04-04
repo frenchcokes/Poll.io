@@ -12,6 +12,7 @@ const playerAnswers = ["Apple", "Brave", "Click", "Diver", "Eagle", "Flute", "Gr
 const playerScores = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
 
 const path = require('path');
+const { debug } = require('console');
 
 app.get('/', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/game.html"));
@@ -30,6 +31,20 @@ wss.on('connection', (ws, req) => {
     //setRoundCountdown(5);
     startVoteUI();
     update();
+
+    ws.on("message", function clientInput(message) {
+        //Send this data 
+        jsonData = JSON.parse(message);
+
+        if(jsonData.type === "MENUUPDATE") {
+            //Send the update to the other clients
+            wss.clients.forEach((client) => {
+                if(client.readyState == WebSocket.OPEN && client !== ws) {
+                    client.send(JSON.stringify(jsonData));
+                }
+            })
+        }
+    });
 
     ws.on('close', function() {
         const currentDate = new Date();

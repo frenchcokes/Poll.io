@@ -11,6 +11,15 @@ const voteInputSendButton = document.getElementsByClassName("votes-input-send")[
 const messageInput = document.getElementsByClassName("message-input")[0];
 const messageInputSend = document.getElementsByClassName("message-input-send")[0];
 
+var PROMPTTIME = document.getElementById("PROMPT-TIME");
+var VOTETIME = document.getElementById("VOTE-TIME");
+var RESULTTIME = document.getElementById("RESULT-TIME");
+var ROUNDS = document.getElementById("ROUNDS");
+
+var PACK1 = document.getElementById("PACK1");
+var PACK2 = document.getElementById("PACK2");
+var PACK3 = document.getElementById("PACK3");
+
 ws.onopen = () => {
     console.log('Successfully connected to server!');
 }
@@ -18,8 +27,11 @@ ws.onopen = () => {
 ws.onmessage = (event) => {
     jsonParse = JSON.parse(event.data);
     switch(jsonParse.type) {
+        case "MENUUPDATE":
+            updateGameMenu(jsonParse);
+            break;
         case "MENU":
-            startGameMenuUI();
+            startGameMenuUI(jsonParse);
             break;
         case "UPDATE":
             updatePlayerButtons(jsonParse.playerNames, jsonParse.playerScores, jsonParse.playerIndex);
@@ -46,6 +58,17 @@ function setRoundCountdown(roundTime) {
             clearInterval(countdownFunction);
         }
     }, 1000)
+}
+
+function updateGameMenu(jsonParse) {
+    PROMPTTIME.value = jsonParse.promptTime;
+    VOTETIME.value = jsonParse.voteTime;
+    RESULTTIME.value = jsonParse.resultTime;
+    ROUNDS.value = jsonParse.rounds;
+
+    PACK1.checked = jsonParse.isPack1;
+    PACK2.checked = jsonParse.isPack2;
+    PACK3.checked = jsonParse.isPack3;
 }
 
 function updatePlayerButtons(playerNames, playerScores, playerIndex) {
@@ -97,6 +120,27 @@ startGameMenuUI() {
 
 }
 */
+
+function addListenersToMenu() {
+    var inputFields = [PROMPTTIME, VOTETIME, RESULTTIME, ROUNDS, PACK1, PACK2, PACK3];
+    var inputFieldsLength = inputFields.length;
+    for(let i = 0; i < inputFieldsLength; i++) {
+        inputFields[i].addEventListener("change", function() {
+            const data = {
+                type: "MENUUPDATE",
+                promptTime: PROMPTTIME.value,
+                voteTime: VOTETIME.value,
+                resultTime: RESULTTIME.value,
+                rounds: ROUNDS.value,
+                isPack1: PACK1.checked,
+                isPack2: PACK2.checked,
+                isPack3: PACK3.checked
+            }
+            ws.send(JSON.stringify(data));
+        });
+    }
+}
+addListenersToMenu();
 
 var selectedVoteButton = -1;
 function startVoteUI(playerNames, playerAnswers) {
