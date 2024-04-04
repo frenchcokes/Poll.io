@@ -15,24 +15,7 @@
             
             <div class="general-container">
                 <div class="player-container">
-                    <div class="player-box">
-                        <div class="player-title">
-                            PLAYER NAME
-                        </div>
-                        <div class="player-score">
-                            SCORE
-                        </div>
-                        <div class="player-score-change-box">(+1000)</div>
-                    </div>
-                    <div class="player-box">
-                        <div class="player-title">
-                            PLAYER NAME
-                        </div>
-                        <div class="player-score">
-                            SCORE
-                        </div>
-                        <div class="player-score-change-box">(+1000)</div>
-                    </div>
+                    
                     <!-- FORMAT
                         <div class="player-box">
                             <div class="player-title">
@@ -41,10 +24,58 @@
                             <div class="player-score">
                                 SCORE
                             </div>
+                            <div class="player-score-change-box">(+1000)</div>
                         </div>
                     -->
                 </div>
                 <div class="prompt-container">
+                    <div class="game-menu-container">
+                        <div class="section-heading">General Settings</div>
+                        <div class="game-menu-row">
+                            <div class="select-class-label">Prompt Time:</div>
+                            <select id="PROMPT-TIME"class="select-class">
+                                <option value="15">15s</option>
+                                <option value="30">30s</option>
+                                <option value="45">45s</option>
+                            </select>
+                        </div>
+                        <div class="game-menu-row">
+                              <div class="select-class-label">Vote Time:</div>
+                              <select id="VOTE-TIME"class="select-class">
+                                  <option value="10">10s</option>
+                                  <option value="15">15s</option>
+                                  <option value="30">30s</option>
+                              </select>
+                        </div>
+                        <div class="game-menu-row">
+                            <div class="select-class-label">Result Time:</div>
+                            <select id="RESULT-TIME"class="select-class">
+                                <option value="3">3s</option>
+                                <option value="5">5s</option>
+                                <option value="7">7s</option>
+                            </select>
+                        </div>
+                        <div class="game-menu-row">
+                            <div class="select-class-label">Rounds:</div>
+                            <select id="ROUNDS"class="select-class">
+                                <option value="3">3</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                        <div class="section-heading">Prompt Packs</div>
+                        <div class="game-menu-row">
+                            <div class="checkbox-label">Default:</div>
+                            <input type="checkbox"></input>
+                            <div class="checkbox-label">Close Friends:</div>
+                            <input type="checkbox"></input>
+                            <div class="checkbox-label">Based:</div>
+                            <input type="checkbox"></input>
+                        </div>
+                        <div class="game-menu-row">
+                            <button class="menu-submit-button">Start the game!</button>
+                        </div>
+                    </div>
                     <div class="prompt">
                          Among us
                     </div> 

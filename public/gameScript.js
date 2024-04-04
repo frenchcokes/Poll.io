@@ -3,13 +3,13 @@ const ws = new WebSocket('ws://localhost:3000');
 const playerContainer = document.querySelector('.player-container');
 const roundTimer = document.querySelector('.round-timer')
 
-const promptText = document.getElementsByClassName(".prompt");
+const promptText = document.getElementsByClassName("prompt")[0];
 
-const voteRows = document.getElementsByClassName(".votes-row");
-const voteInputSendButton = document.getElementsByClassName(".votes-input-send");
+const voteRows = document.getElementsByClassName("votes-row");
+const voteInputSendButton = document.getElementsByClassName("votes-input-send")[0];
 
-const messageInput = document.getElementsByClassName(".message-input");
-const messageInputSend = document.getElementsByClassName(".message-input-send");
+const messageInput = document.getElementsByClassName("message-input")[0];
+const messageInputSend = document.getElementsByClassName("message-input-send")[0];
 
 ws.onopen = () => {
     console.log('Successfully connected to server!');
@@ -18,6 +18,9 @@ ws.onopen = () => {
 ws.onmessage = (event) => {
     jsonParse = JSON.parse(event.data);
     switch(jsonParse.type) {
+        case "MENU":
+            startGameMenuUI();
+            break;
         case "UPDATE":
             updatePlayerButtons(jsonParse.playerNames, jsonParse.playerScores, jsonParse.playerIndex);
             break;
@@ -74,9 +77,7 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
 }
 
 
-hideAllGameElements();
 function hideAllGameElements() {
-    //NEEDS TO BE FIXED
     //Empty Prompt
     promptText.innerText = "";
 
@@ -91,8 +92,19 @@ function hideAllGameElements() {
     messageInputSend.style.visibility = "hidden";
 }
 
+/*
+startGameMenuUI() {
+
+}
+*/
+
 var selectedVoteButton = -1;
 function startVoteUI(playerNames, playerAnswers) {
+    hideAllGameElements();
+
+    //SHOW PROMPT
+    promptText.innerText = "PROMPT";
+
     selectedVoteButton = -1;
     var numberOfButtons = playerNames.length;
 
