@@ -13,6 +13,7 @@ const playerScores = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
 
 const path = require('path');
 const { debug } = require('console');
+const { setInterval } = require('timers/promises');
 
 app.get('/', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/game.html"));
@@ -44,6 +45,15 @@ wss.on('connection', (ws, req) => {
                 }
             })
         }
+        else if(jsonData.type === "STARTGAME") {
+            setRoundTime();
+            console.log("Started Game!");
+            wss.clients.forEach((client) => {
+                if(client.readyState == WebSocket.OPEN) {
+                    client.send(JSON.stringify(jsonData));
+                }
+            })
+        }
     });
 
     ws.on('close', function() {
@@ -53,6 +63,31 @@ wss.on('connection', (ws, req) => {
         update();
     })
 })
+
+var intervalID;
+var time = 30;
+function countdown() {
+    wss.clients.forEach((client) => {
+        const timeData = {
+            type : "LOOP",
+            roundTime: time 
+        }
+        client.send(JSON.stringify(timeData));
+    })
+    time = time - 1;
+    if(time < 0) {
+        clearInterval(intervalID);
+    }
+}
+
+function setRoundTime() {
+    if(!intervalID) {
+        intervalID = setInterval(countdown, 1000);
+    }
+    
+}
+
+
 
 function update() {
     x = -1;
@@ -76,6 +111,7 @@ function update() {
         }
     })
 }
+
 
 function setRoundCountdown(duration) {
     wss.clients.forEach((client) => {

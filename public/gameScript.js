@@ -20,6 +20,8 @@ var PACK1 = document.getElementById("PACK1");
 var PACK2 = document.getElementById("PACK2");
 var PACK3 = document.getElementById("PACK3");
 
+var GAMESTARTBUTTON = document.getElementById("GAMESTARTBUTTON");
+
 ws.onopen = () => {
     console.log('Successfully connected to server!');
 }
@@ -30,8 +32,11 @@ ws.onmessage = (event) => {
         case "MENUUPDATE":
             updateGameMenu(jsonParse);
             break;
+        case "STARTGAME":
+            startGame();
+            break;
         case "MENU":
-            startGameMenuUI(jsonParse);
+            //startGameMenuUI(jsonParse);
             break;
         case "UPDATE":
             updatePlayerButtons(jsonParse.playerNames, jsonParse.playerScores, jsonParse.playerIndex);
@@ -49,15 +54,11 @@ ws.onmessage = (event) => {
     }
 }
 
+function startGame() {
+}
+
 function setRoundCountdown(roundTime) {
-    currentTime = roundTime;
-    var countdownFunction = setInterval(function() {
-        roundTimer.textContent = "Time Remaining: " + roundTime;
-        roundTime = roundTime - 1;
-        if(roundTime < 0) {
-            clearInterval(countdownFunction);
-        }
-    }, 1000)
+    roundTimer.textContent = "Time Remaining: " + roundTime;
 }
 
 function updateGameMenu(jsonParse) {
@@ -139,6 +140,20 @@ function addListenersToMenu() {
             ws.send(JSON.stringify(data));
         });
     }
+
+    GAMESTARTBUTTON.addEventListener("click", function() {
+        const data = {
+            type: "STARTGAME",
+            promptTime: PROMPTTIME.value,
+            voteTime: VOTETIME.value,
+            resultTime: RESULTTIME.value,
+            rounds: ROUNDS.value,
+            isPack1: PACK1.checked,
+            isPack2: PACK2.checked,
+            isPack3: PACK3.checked
+        }
+        ws.send(JSON.stringify(data));
+    })
 }
 addListenersToMenu();
 
