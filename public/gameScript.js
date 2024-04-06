@@ -5,9 +5,11 @@ const roundTimer = document.querySelector('.round-timer')
 
 const promptText = document.getElementsByClassName("prompt")[0];
 
+const votesContainer = document.getElementById("VOTESCONTAINER");
 const voteRows = document.getElementsByClassName("votes-row");
 const voteInputSendButton = document.getElementsByClassName("votes-input-send")[0];
 
+const messageInputContainer = document.getElementById("FORMSUBMIT");
 const messageInput = document.getElementsByClassName("message-input")[0];
 const messageInputSend = document.getElementsByClassName("message-input-send")[0];
 
@@ -19,6 +21,8 @@ var ROUNDS = document.getElementById("ROUNDS");
 var PACK1 = document.getElementById("PACK1");
 var PACK2 = document.getElementById("PACK2");
 var PACK3 = document.getElementById("PACK3");
+
+var GAMEMENUCONTAINER = document.getElementById("GAMEMENUCONTAINER");
 
 var GAMESTARTBUTTON = document.getElementById("GAMESTARTBUTTON");
 
@@ -33,7 +37,7 @@ ws.onmessage = (event) => {
             updateGameMenu(jsonParse);
             break;
         case "STARTGAME":
-            startGame();
+            startGame(jsonParse);
             break;
         case "MENU":
             //startGameMenuUI(jsonParse);
@@ -54,7 +58,16 @@ ws.onmessage = (event) => {
     }
 }
 
-function startGame() {
+function startGame(jsonParse) {
+    hideAllGameElements();
+    GAMEMENUCONTAINER.style.display = "none";
+    promptText.style.display = "flex";
+    votesContainer.style.display = "flex";
+    messageInputContainer.style.display = "flex";
+
+    promptText.innerHTML = jsonParse.prompt;
+    messageInput.style.visibility = "visible";
+    messageInputSend.style.visibility = "visible";
 }
 
 function setRoundCountdown(roundTime) {
@@ -112,7 +125,7 @@ function hideAllGameElements() {
 
     //Empty Message Input Elements
     messageInput.style.visibility = "hidden";
-    messageInput.value = 0;
+    messageInput.value = "";
     messageInputSend.style.visibility = "hidden";
 }
 

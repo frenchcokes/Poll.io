@@ -14,6 +14,7 @@ const playerScores = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
 const path = require('path');
 const { debug } = require('console');
 const { setInterval } = require('timers/promises');
+const { stringify } = require('querystring');
 
 app.get('/', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/game.html"));
@@ -48,9 +49,16 @@ wss.on('connection', (ws, req) => {
         else if(jsonData.type === "STARTGAME") {
             setRoundTime();
             console.log("Started Game!");
+            
+            var selectedPrompt = "Hello";
+            const data = {
+                type: "STARTGAME",
+                prompt: selectedPrompt
+            }
+            stringifyData = JSON.stringify(data);
             wss.clients.forEach((client) => {
                 if(client.readyState == WebSocket.OPEN) {
-                    client.send(JSON.stringify(jsonData));
+                    client.send(stringifyData);
                 }
             })
         }
