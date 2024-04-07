@@ -111,6 +111,27 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
         playerContainer.appendChild(playerBoxDiv);
 
     }
+
+    //
+    messageInputSend.addEventListener("click", function() {
+        attemptToSend();
+    });
+    messageInput.addEventListener("keypress", function(event) {
+        if(event.keyCode === 13 && document.activeElement === messageInput) {
+            attemptToSend();
+        }
+    })
+
+    function attemptToSend() {
+        if(messageInput.value !== "") {
+            const data = {
+                type: "PROMPTSUBMISSION",
+                prompt: messageInput.value
+            }
+            messageInput.value = "";
+            ws.send(JSON.stringify(data));
+        }
+    }
 }
 
 

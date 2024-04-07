@@ -38,29 +38,33 @@ wss.on('connection', (ws, req) => {
         //Send this data 
         jsonData = JSON.parse(message);
 
-        if(jsonData.type === "MENUUPDATE") {
-            //Send the update to the other clients
-            wss.clients.forEach((client) => {
-                if(client.readyState == WebSocket.OPEN && client !== ws) {
-                    client.send(JSON.stringify(jsonData));
+        switch(jsonData.type) {
+            case "MENUUPDATE":
+                wss.clients.forEach((client) => {
+                    if(client.readyState == WebSocket.OPEN && client !== ws) {
+                        client.send(JSON.stringify(jsonData));
+                    }
+                })
+                break;
+            case "STARTGAME":
+                setRoundTime();
+                console.log("Started Game!");
+                
+                var selectedPrompt = "Hello";
+                const data = {
+                    type: "STARTGAME",
+                    prompt: selectedPrompt
                 }
-            })
-        }
-        else if(jsonData.type === "STARTGAME") {
-            setRoundTime();
-            console.log("Started Game!");
-            
-            var selectedPrompt = "Hello";
-            const data = {
-                type: "STARTGAME",
-                prompt: selectedPrompt
-            }
-            stringifyData = JSON.stringify(data);
-            wss.clients.forEach((client) => {
-                if(client.readyState == WebSocket.OPEN) {
-                    client.send(stringifyData);
-                }
-            })
+                stringifyData = JSON.stringify(data);
+                wss.clients.forEach((client) => {
+                    if(client.readyState == WebSocket.OPEN) {
+                        client.send(stringifyData);
+                    }
+                })
+                break;
+            case "PROMPTSUBMISSION":
+                console.log("Received prompt: " + jsonData.prompt)
+                break;
         }
     });
 
