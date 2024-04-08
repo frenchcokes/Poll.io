@@ -63,6 +63,7 @@ wss.on('connection', (ws, req) => {
                 })
                 break;
             case "PROMPTSUBMISSION":
+                
                 console.log("Received prompt: " + jsonData.prompt)
                 break;
         }

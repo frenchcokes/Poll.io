@@ -129,6 +129,8 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
                 prompt: messageInput.value
             }
             messageInput.value = "";
+            messageInput.style.visibility = "hidden";
+            messageInputSend.style.visibility = "hidden";
             ws.send(JSON.stringify(data));
         }
     }
