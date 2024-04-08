@@ -7,8 +7,8 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 const clients = new Set();
-const playerNames = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Player 8"];
-const playerAnswers = [];
+playerNames = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Player 8"];
+playerAnswers = [];
 const playerScores = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
 
 const path = require('path');
@@ -63,6 +63,7 @@ wss.on('connection', (ws, req) => {
                         client.send(stringifyData);
                     }
                 })
+                playerAnswers = [];
                 break;
             case "PROMPTSUBMISSION":
                 console.log("Received prompt: " + jsonData.prompt)
@@ -72,6 +73,9 @@ wss.on('connection', (ws, req) => {
                     console.log("Changed to vote page.");
                     startVotes();
                 }
+                break;
+            case "VOTESUBMISSION":
+                console.log("received vote button: " + jsonData.voteIndex);
                 break;
         }
     });

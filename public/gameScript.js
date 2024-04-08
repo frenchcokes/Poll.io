@@ -190,6 +190,16 @@ function addListenersToMenu() {
         }
         ws.send(JSON.stringify(data));
     })
+
+    voteInputSendButton.addEventListener("click", function() {
+        if(selectedVoteButton !== -1) {
+            const d = {
+                type: "VOTESUBMISSION",
+                voteIndex: selectedVoteButton
+            }
+            ws.send(JSON.stringify(d));
+        }
+    });
 }
 addListenersToMenu();
 
@@ -204,6 +214,7 @@ function startVoteUI(playerNames, playerAnswers) {
     var numberOfButtons = playerNames.length;
 
     voteInputSendButton.style.visibility = "visible";
+
     voteRows[0].innerHTML = "";
     voteRows[1].innerHTML = "";
     for (var i = 0; i < numberOfButtons; i++) {
