@@ -26,6 +26,8 @@ app.get('/game', async(req, res) => {
 })
 */
 
+numberOfResponses = 0;
+
 wss.on('connection', (ws, req) => {
     clients.add(ws);
     const currentDate = new Date();
@@ -63,8 +65,11 @@ wss.on('connection', (ws, req) => {
                 })
                 break;
             case "PROMPTSUBMISSION":
-                
                 console.log("Received prompt: " + jsonData.prompt)
+                numberOfResponses = numberOfResponses + 1;
+                if(numberOfResponses === clients.size) {
+                    console.log("Changed to vote page.");
+                }
                 break;
         }
     });
