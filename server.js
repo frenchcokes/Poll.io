@@ -8,7 +8,7 @@ const wss = new WebSocket.Server({ server });
 
 const clients = new Set();
 const playerNames = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Player 8"];
-const playerAnswers = ["Apple", "Brave", "Click", "Diver", "Eagle", "Flute", "Grape", "House"];
+const playerAnswers = [];
 const playerScores = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
 
 const path = require('path');
@@ -67,8 +67,10 @@ wss.on('connection', (ws, req) => {
             case "PROMPTSUBMISSION":
                 console.log("Received prompt: " + jsonData.prompt)
                 numberOfResponses = numberOfResponses + 1;
+                playerAnswers.push(jsonData.prompt);
                 if(numberOfResponses === clients.size) {
                     console.log("Changed to vote page.");
+                    startVotes();
                 }
                 break;
         }
@@ -81,6 +83,23 @@ wss.on('connection', (ws, req) => {
         update();
     })
 })
+
+function startVotes() {
+    var outputNames = [];
+    var length = clients.size;
+    for (var i = 0; i < length; i++) {
+        outputNames.push(playerNames[0]);
+    }
+
+    wss.clients.forEach((client) => {
+        const d = {
+            type: "STARTVOTE",
+            playerNames: outputNames,
+            playerAnswers: playerAnswers 
+        }
+        client.send(JSON.stringify(d));
+    })
+}
 
 var intervalID;
 var time = 30;
