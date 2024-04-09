@@ -36,10 +36,20 @@ wss.on('connection', (ws, req) => {
     startVoteUI();
     update();
 
+    wss.clients.forEach((client) => {
+        if(client.readyState == WebSocket.OPEN) {
+            const d = {
+                type: "CHATBOXMESSAGERECEIVED",
+                sender: "System",
+                message: "A player has joined!"
+            }
+            client.send(JSON.stringify(d));
+        }
+    })
+
     ws.on("message", function clientInput(message) {
         //Send this data 
         jsonData = JSON.parse(message);
-
         switch(jsonData.type) {
             case "MENUUPDATE":
                 wss.clients.forEach((client) => {
@@ -76,6 +86,18 @@ wss.on('connection', (ws, req) => {
                 break;
             case "VOTESUBMISSION":
                 console.log("received vote button: " + jsonData.voteIndex);
+                break;
+            case "CHATBOXSUBMISSION":
+                wss.clients.forEach((client) => {
+                    if(client.readyState == WebSocket.OPEN && client !== ws) {
+                        const d = {
+                            type: "CHATBOXMESSAGERECEIVED",
+                            sender: playerNames[0],
+                            message: jsonData.message
+                        }
+                        client.send(JSON.stringify(d));
+                    }
+                })
                 break;
         }
     });

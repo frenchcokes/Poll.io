@@ -13,6 +13,10 @@ const messageInputContainer = document.getElementById("FORMSUBMIT");
 const messageInput = document.getElementsByClassName("message-input")[0];
 const messageInputSend = document.getElementsByClassName("message-input-send")[0];
 
+const chatMessagesContainer = document.getElementById("CHAT-MESSAGES-CONTAINER");
+const chatboxField = document.getElementById("CHATBOX-FIELD");
+const chatboxSend = document.getElementById("CHATBOX-SEND");
+
 var PROMPTTIME = document.getElementById("PROMPT-TIME");
 var VOTETIME = document.getElementById("VOTE-TIME");
 var RESULTTIME = document.getElementById("RESULT-TIME");
@@ -55,7 +59,18 @@ ws.onmessage = (event) => {
             break;
         case "FINALRESULTS":
             break;
+        case "CHATBOXMESSAGERECEIVED":
+            chatboxMessageReceived(jsonParse.message, jsonParse.sender);
+            break;
     }
+}
+
+function chatboxMessageReceived(messageText, sender) {
+    const message = document.createElement('div');
+    message.classList.add("chat-message");
+    message.textContent = sender + ": " + messageText;
+
+    chatMessagesContainer.appendChild(message);
 }
 
 function startGame(jsonParse) {
@@ -200,6 +215,20 @@ function addListenersToMenu() {
             ws.send(JSON.stringify(d));
         }
     });
+
+    chatboxSend.addEventListener("click", function() {
+        if(chatboxField.value !== "") {
+            const d = {
+                type: "CHATBOXSUBMISSION",
+                message: chatboxField.value
+            }
+            ws.send(JSON.stringify(d));
+            
+            chatboxMessageReceived(chatboxField.value, "You");
+
+            chatboxField.value = "";
+        }
+    })
 }
 addListenersToMenu();
 
