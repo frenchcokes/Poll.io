@@ -279,23 +279,8 @@ function startVoteUI(playerNames, playerAnswers) {
             buttons.push(voteButton);
     }
 
-    randomOrder = [];
-    while(randomOrder.length < buttons.length) {
-        index = Math.floor(Math.random() * buttons.length);
-        if(randomOrder.includes(index) === false) {
-            randomOrder.push(index);
-        }
-    }
-
-    for (var i = 0; i < buttons.length; i++) {
-        if(i < 4) {
-            VOTEROWCONTAINERS[0].appendChild(buttons[randomOrder[i]]);
-        }
-        else {
-            VOTEROWCONTAINERS[1].appendChild(buttons[randomOrder[i]]);
-        }
-    }
-
+    displayToRows(buttons, false);
+    
     var divs = document.getElementsByClassName("vote-button");
     for (var i = 0; i < divs.length; i++) {
         (function(div) {
@@ -307,11 +292,43 @@ function startVoteUI(playerNames, playerAnswers) {
                     div.style.backgroundColor = "rgb(0, 128, 0)";
                     selectedVoteButton = -1;
                 } else if (selectedVoteButton !== div.id) {
-                    divs[selectedVoteButton].style.backgroundColor = "rgb(0, 128, 0)";
+                    for (var j = 0; j < divs.length; j++) {
+                        divs[j].style.backgroundColor = "rgb(0, 128, 0)";
+                    }
                     div.style.backgroundColor = "rgb(255, 0, 0)";
                     selectedVoteButton = div.id;
                 }
             });
         })(divs[i]);
     }
+}
+
+function displayToRows(buttons, isRandom) {
+    randomOrder = [];
+    if(isRandom === true) {
+        while(randomOrder.length < buttons.length) {
+            index = Math.floor(Math.random() * buttons.length);
+            if(randomOrder.includes(index) === false) {
+                randomOrder.push(index);
+            }
+        }
+        for (var i = 0; i < buttons.length; i++) {
+            if(i < 4) {
+                VOTEROWCONTAINERS[0].appendChild(buttons[randomOrder[i]]);
+            }
+            else {
+                VOTEROWCONTAINERS[1].appendChild(buttons[randomOrder[i]]);
+            }
+        }
+    } else if(isRandom === false) {
+        for (var i = 0; i < buttons.length; i++) {
+            if(i < 4) {
+                VOTEROWCONTAINERS[0].appendChild(buttons[i]);
+            }
+            else {
+                VOTEROWCONTAINERS[1].appendChild(buttons[i]);
+            }
+        }
+    }
+
 }

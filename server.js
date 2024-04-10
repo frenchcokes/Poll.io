@@ -27,7 +27,8 @@ app.get('/game', async(req, res) => {
 */
 
 numberOfResponses = 0;
-
+numberOfVoteResponses = 0;
+voteResponseCounter = [];
 wss.on('connection', (ws, req) => {
     clients.add(ws);
     const currentDate = new Date();
@@ -81,11 +82,19 @@ wss.on('connection', (ws, req) => {
                 playerAnswers.push(jsonData.prompt);
                 if(numberOfResponses === clients.size) {
                     console.log("Changed to vote page.");
+                    numberOfResponses = 0;
                     startVotes();
                 }
                 break;
             case "VOTESUBMISSION":
-                console.log("received vote button: " + jsonData.voteIndex);
+                console.log("received vote index: " + jsonData.voteIndex);
+                numberOfVoteResponses = numberOfVoteResponses + 1;
+                voteResponseCounter[jsonData.voteIndex] = voteResponseCounter[jsonData.voteIndex] + 1;
+                if(numberOfVoteResponses === clients.size) {
+                    console.log("Changed to responses page.");
+                    numberOfVoteResponses = 0;
+                    startResults();
+                }
                 break;
             case "CHATBOXSUBMISSION":
                 wss.clients.forEach((client) => {
@@ -110,7 +119,25 @@ wss.on('connection', (ws, req) => {
     })
 })
 
+function startResults() {
+    console.log("Displayed Results");
+    /*
+    wss.clients.forEach((client) => {
+        if(client.readyState == WebSocket.OPEN) {
+            const d = {
+                type: "CHATBOXMESSAGERECEIVED"
+            }
+            client.send(JSON.stringify(d));
+        }
+    })
+    */
+}
+
 function startVotes() {
+    //Refresh vote counter
+    var length = clients.size;
+    voteResponseCounter = Array.from({ length }, () => 0);
+
     var outputNames = [];
     var length = clients.size;
     for (var i = 0; i < length; i++) {
