@@ -1,30 +1,30 @@
 const ws = new WebSocket('ws://localhost:3000');
 
-const playerContainer = document.querySelector('.player-container');
-const roundTimer = document.querySelector('.round-timer')
+const PLAYERSCONTAINER = document.querySelector('.player-container');
+const ROUNDTIMERTEXT = document.querySelector('.round-timer')
 
-const promptText = document.getElementsByClassName("prompt")[0];
+const PROMPTTEXT = document.getElementById("PROMPT");
 
-const votesContainer = document.getElementById("VOTESCONTAINER");
-const voteRows = document.getElementsByClassName("votes-row");
-const voteInputSendButton = document.getElementsByClassName("votes-input-send")[0];
+const VOTESCONTAINER = document.getElementById("VOTESCONTAINER");
+const VOTEROWCONTAINERS = document.getElementsByClassName("votes-row");
+const VOTESEND = document.getElementById("VOTES-INPUT-SEND");
 
-const messageInputContainer = document.getElementById("FORMSUBMIT");
-const messageInput = document.getElementsByClassName("message-input")[0];
-const messageInputSend = document.getElementsByClassName("message-input-send")[0];
+const MESSAGECONTAINER = document.getElementById("FORMSUBMIT");
+const MESSAGEFIELD = document.getElementById("MESSAGE-INPUT");
+const MESSAGESEND = document.getElementById("MESSAGE-SEND");
 
-const chatMessagesContainer = document.getElementById("CHAT-MESSAGES-CONTAINER");
-const chatboxField = document.getElementById("CHATBOX-FIELD");
-const chatboxSend = document.getElementById("CHATBOX-SEND");
+const CHATBOXMESSAGESCONTAINER = document.getElementById("CHAT-MESSAGES-CONTAINER");
+const CHATBOXFIELD = document.getElementById("CHATBOX-FIELD");
+const CHATBOXSEND = document.getElementById("CHATBOX-SEND");
 
-var PROMPTTIME = document.getElementById("PROMPT-TIME");
-var VOTETIME = document.getElementById("VOTE-TIME");
-var RESULTTIME = document.getElementById("RESULT-TIME");
-var ROUNDS = document.getElementById("ROUNDS");
+const PROMPTTIME = document.getElementById("PROMPT-TIME");
+const VOTETIME = document.getElementById("VOTE-TIME");
+const RESULTTIME = document.getElementById("RESULT-TIME");
+const ROUNDS = document.getElementById("ROUNDS");
 
-var PACK1 = document.getElementById("PACK1");
-var PACK2 = document.getElementById("PACK2");
-var PACK3 = document.getElementById("PACK3");
+const PACK1 = document.getElementById("PACK1");
+const PACK2 = document.getElementById("PACK2");
+const PACK3 = document.getElementById("PACK3");
 
 var GAMEMENUCONTAINER = document.getElementById("GAMEMENUCONTAINER");
 
@@ -60,33 +60,33 @@ ws.onmessage = (event) => {
         case "FINALRESULTS":
             break;
         case "CHATBOXMESSAGERECEIVED":
-            chatboxMessageReceived(jsonParse.message, jsonParse.sender);
+            addMessageToChatbox(jsonParse.message, jsonParse.sender);
             break;
     }
 }
 
-function chatboxMessageReceived(messageText, sender) {
+function addMessageToChatbox(messageText, sender) {
     const message = document.createElement('div');
     message.classList.add("chat-message");
     message.textContent = sender + ": " + messageText;
 
-    chatMessagesContainer.appendChild(message);
+    CHATBOXMESSAGESCONTAINER.appendChild(message);
 }
 
 function startGame(jsonParse) {
     hideAllGameElements();
     GAMEMENUCONTAINER.style.display = "none";
-    promptText.style.display = "flex";
-    votesContainer.style.display = "flex";
-    messageInputContainer.style.display = "flex";
+    PROMPTTEXT.style.display = "flex";
+    VOTESCONTAINER.style.display = "flex";
+    MESSAGECONTAINER.style.display = "flex";
 
-    promptText.innerHTML = jsonParse.prompt;
-    messageInput.style.visibility = "visible";
-    messageInputSend.style.visibility = "visible";
+    PROMPTTEXT.innerHTML = jsonParse.prompt;
+    MESSAGEFIELD.style.visibility = "visible";
+    MESSAGESEND.style.visibility = "visible";
 }
 
 function setRoundCountdown(roundTime) {
-    roundTimer.textContent = "Time Remaining: " + roundTime;
+    ROUNDTIMERTEXT.textContent = "Time Remaining: " + roundTime;
 }
 
 function updateGameMenu(jsonParse) {
@@ -101,7 +101,7 @@ function updateGameMenu(jsonParse) {
 }
 
 function updatePlayerButtons(playerNames, playerScores, playerIndex) {
-    playerContainer.innerHTML = ''; //CLEARS CHILDREN
+    PLAYERSCONTAINER.innerHTML = ''; //CLEARS CHILDREN
     const x = playerNames.length;
 
     for (let i = 0; i < x; i++) {
@@ -123,29 +123,29 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
 
         playerBoxDiv.appendChild(playerTitleDiv);
         playerBoxDiv.appendChild(playerScoreDiv);
-        playerContainer.appendChild(playerBoxDiv);
+        PLAYERSCONTAINER.appendChild(playerBoxDiv);
 
     }
 
     //
-    messageInputSend.addEventListener("click", function() {
+    MESSAGESEND.addEventListener("click", function() {
         attemptToSend();
     });
-    messageInput.addEventListener("keypress", function(event) {
-        if(event.keyCode === 13 && document.activeElement === messageInput) {
+    MESSAGEFIELD.addEventListener("keypress", function(event) {
+        if(event.key === "Enter" && document.activeElement === MESSAGEFIELD) {
             attemptToSend();
         }
     })
 
     function attemptToSend() {
-        if(messageInput.value !== "") {
+        if(MESSAGEFIELD.value !== "") {
             const data = {
                 type: "PROMPTSUBMISSION",
-                prompt: messageInput.value
+                prompt: MESSAGEFIELD.value
             }
-            messageInput.value = "";
-            messageInput.style.visibility = "hidden";
-            messageInputSend.style.visibility = "hidden";
+            MESSAGEFIELD.value = "";
+            MESSAGEFIELD.style.visibility = "hidden";
+            MESSAGESEND.style.visibility = "hidden";
             ws.send(JSON.stringify(data));
         }
     }
@@ -154,24 +154,18 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
 
 function hideAllGameElements() {
     //Empty Prompt
-    promptText.innerText = "";
+    PROMPTTEXT.innerText = "";
 
     //Empty Voting Elements
-    voteRows[0].innerHTML = "";
-    voteRows[1].innerHTML = "";
-    voteInputSendButton.style.visibility = "hidden";
+    VOTEROWCONTAINERS[0].innerHTML = "";
+    VOTEROWCONTAINERS[1].innerHTML = "";
+    VOTESEND.style.visibility = "hidden";
 
     //Empty Message Input Elements
-    messageInput.style.visibility = "hidden";
-    messageInput.value = "";
-    messageInputSend.style.visibility = "hidden";
+    MESSAGEFIELD.style.visibility = "hidden";
+    MESSAGEFIELD.value = "";
+    MESSAGESEND.style.visibility = "hidden";
 }
-
-/*
-startGameMenuUI() {
-
-}
-*/
 
 function addListenersToMenu() {
     var inputFields = [PROMPTTIME, VOTETIME, RESULTTIME, ROUNDS, PACK1, PACK2, PACK3];
@@ -206,7 +200,7 @@ function addListenersToMenu() {
         ws.send(JSON.stringify(data));
     })
 
-    voteInputSendButton.addEventListener("click", function() {
+    VOTESEND.addEventListener("click", function() {
         if(selectedVoteButton !== -1) {
             const d = {
                 type: "VOTESUBMISSION",
@@ -216,19 +210,35 @@ function addListenersToMenu() {
         }
     });
 
-    chatboxSend.addEventListener("click", function() {
-        if(chatboxField.value !== "") {
+    CHATBOXSEND.addEventListener("click", function() {
+        if(CHATBOXFIELD.value !== "") {
             const d = {
                 type: "CHATBOXSUBMISSION",
-                message: chatboxField.value
+                message: CHATBOXFIELD.value
             }
             ws.send(JSON.stringify(d));
             
-            chatboxMessageReceived(chatboxField.value, "You");
+            addMessageToChatbox(CHATBOXFIELD.value, "You");
 
-            chatboxField.value = "";
+            CHATBOXFIELD.value = "";
         }
-    })
+    });
+
+    CHATBOXFIELD.addEventListener("keypress", function(event) {
+        if(event.key === "Enter" && document.activeElement === CHATBOXFIELD) {
+            if(CHATBOXFIELD.value !== "") {
+                const d = {
+                    type: "CHATBOXSUBMISSION",
+                    message: CHATBOXFIELD.value
+                }
+                ws.send(JSON.stringify(d));
+                
+                addMessageToChatbox(CHATBOXFIELD.value, "You");
+    
+                CHATBOXFIELD.value = "";
+            }
+        }
+    });
 }
 addListenersToMenu();
 
@@ -237,15 +247,15 @@ function startVoteUI(playerNames, playerAnswers) {
     hideAllGameElements();
 
     //SHOW PROMPT
-    promptText.innerText = "PROMPT";
+    PROMPTTEXT.innerText = "PROMPT";
 
     selectedVoteButton = -1;
     var numberOfButtons = playerNames.length;
 
-    voteInputSendButton.style.visibility = "visible";
+    VOTESEND.style.visibility = "visible";
 
-    voteRows[0].innerHTML = "";
-    voteRows[1].innerHTML = "";
+    VOTEROWCONTAINERS[0].innerHTML = "";
+    VOTEROWCONTAINERS[1].innerHTML = "";
     for (var i = 0; i < numberOfButtons; i++) {
             const voteButton = document.createElement('div');
             voteButton.classList.add('vote-button');
@@ -262,10 +272,10 @@ function startVoteUI(playerNames, playerAnswers) {
             voteButton.appendChild(voteButtonVotesText);
             voteButton.appendChild(voteButtonPromptText);
         if(i < 4) {
-            voteRows[0].appendChild(voteButton);
+            VOTEROWCONTAINERS[0].appendChild(voteButton);
         }
         else {
-            voteRows[1].appendChild(voteButton);
+            VOTEROWCONTAINERS[1].appendChild(voteButton);
         }
     }
 
