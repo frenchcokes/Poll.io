@@ -207,6 +207,10 @@ function addListenersToMenu() {
                 voteIndex: selectedVoteButton
             }
             ws.send(JSON.stringify(d));
+            
+            VOTEROWCONTAINERS[0].innerHTML = "";
+            VOTEROWCONTAINERS[1].innerHTML = "";
+            VOTESEND.style.visibility = "hidden";
         }
     });
 
@@ -256,6 +260,7 @@ function startVoteUI(playerNames, playerAnswers) {
 
     VOTEROWCONTAINERS[0].innerHTML = "";
     VOTEROWCONTAINERS[1].innerHTML = "";
+    buttons = [];
     for (var i = 0; i < numberOfButtons; i++) {
             const voteButton = document.createElement('div');
             voteButton.classList.add('vote-button');
@@ -271,11 +276,23 @@ function startVoteUI(playerNames, playerAnswers) {
 
             voteButton.appendChild(voteButtonVotesText);
             voteButton.appendChild(voteButtonPromptText);
+            buttons.push(voteButton);
+    }
+
+    randomOrder = [];
+    while(randomOrder.length < buttons.length) {
+        index = Math.floor(Math.random() * buttons.length);
+        if(randomOrder.includes(index) === false) {
+            randomOrder.push(index);
+        }
+    }
+
+    for (var i = 0; i < buttons.length; i++) {
         if(i < 4) {
-            VOTEROWCONTAINERS[0].appendChild(voteButton);
+            VOTEROWCONTAINERS[0].appendChild(buttons[randomOrder[i]]);
         }
         else {
-            VOTEROWCONTAINERS[1].appendChild(voteButton);
+            VOTEROWCONTAINERS[1].appendChild(buttons[randomOrder[i]]);
         }
     }
 
