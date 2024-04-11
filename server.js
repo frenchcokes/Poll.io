@@ -28,6 +28,8 @@ voteResponseCounter = [];
 promptTime = -1;
 voteTime = -1;
 resultTime = -1;
+rounds = -1;
+roundCounter = 1;
 wss.on('connection', (ws, req) => {
     clients.add(ws);
 
@@ -63,6 +65,7 @@ wss.on('connection', (ws, req) => {
                 promptTime = jsonData.promptTime;
                 voteTime = jsonData.voteTime;
                 resultTime = jsonData.resultTime;
+                rounds = jsonData.rounds;
 
                 startCountdown(promptTime, "PROMPT");
                 console.log("Started Game!");
@@ -70,7 +73,8 @@ wss.on('connection', (ws, req) => {
                 var selectedPrompt = "Hello";
                 const data = {
                     type: "STARTGAME",
-                    prompt: selectedPrompt
+                    prompt: selectedPrompt,
+                    round: roundCounter
                 }
                 stringifyData = JSON.stringify(data);
                 wss.clients.forEach((client) => {
@@ -185,8 +189,10 @@ function countdown(type) {
     })
     time = time - 1;
     if(time < 0) {
+        clearInterval(intervalID);
         switch(type) {
             case "PROMPT":
+                
                 startVotes();
                 console.log("Prompt countdown done!");
                 break;
@@ -195,13 +201,16 @@ function countdown(type) {
                 console.log("Vote countdown done!");
                 break;
             case "RESULT":
+                if(roundCounter < rounds) {
+                    nextRound();
+                }
                 console.log("Result countdown done!");
                 break;
         }
-        clearInterval(intervalID);
     }
 }
 function startCountdown(length, type) {
+    console.log("Started: " + type + " countdown.")
     clearInterval(intervalID);
     time = length;
     intervalID = setInterval(() => {
@@ -210,7 +219,26 @@ function startCountdown(length, type) {
     
 }
 
+function nextRound() {
+    clearInterval(intervalID);
+    startCountdown(promptTime, "PROMPT");
 
+    roundCounter = roundCounter + 1;
+    var selectedPrompt = "Hello";
+    const data = {
+        type: "STARTGAME",
+        prompt: selectedPrompt,
+        round: roundCounter
+    }
+    stringifyData = JSON.stringify(data);
+    wss.clients.forEach((client) => {
+        if(client.readyState == WebSocket.OPEN) {
+            client.send(stringifyData);
+        }
+    })
+    playerAnswers = [];
+    //startCountdown(promptTime, "PROMPT");
+}
 
 function update() {
     x = -1;

@@ -2,6 +2,7 @@ const ws = new WebSocket('ws://localhost:3000');
 
 const PLAYERSCONTAINER = document.querySelector('.player-container');
 const ROUNDTIMERTEXT = document.querySelector('.round-timer')
+const ROUNDDISPLAYTEXT = document.querySelector('.round-display');
 
 const PROMPTTEXT = document.getElementById("PROMPT");
 
@@ -76,6 +77,8 @@ function addMessageToChatbox(messageText, sender) {
 
 function startGame(jsonParse) {
     hideAllGameElements();
+
+    ROUNDDISPLAYTEXT.innerHTML = "Round " + jsonParse.round;
     GAMEMENUCONTAINER.style.display = "none";
     PROMPTTEXT.style.display = "flex";
     VOTESCONTAINER.style.display = "flex";
