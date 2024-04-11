@@ -82,12 +82,17 @@ wss.on('connection', (ws, req) => {
                         client.send(stringifyData);
                     }
                 })
-                playerAnswers = [];
+                playerAnswers = new Array(clients.length);
+                playerAnswers.fill("Spaghetti");
                 break;
             case "PROMPTSUBMISSION":
                 console.log("Received prompt: " + jsonData.prompt)
                 numberOfResponses = numberOfResponses + 1;
-                playerAnswers.push(jsonData.prompt);
+
+                let myArray = Array.from(clients);
+                playerAnswers[myArray.indexOf(ws)] = jsonData.prompt;
+
+
                 if(numberOfResponses === clients.size) {
                     console.log("Changed to vote page.");
                     numberOfResponses = 0;
@@ -236,7 +241,8 @@ function nextRound() {
             client.send(stringifyData);
         }
     })
-    playerAnswers = [];
+    playerAnswers = new Array(clients.length);
+    playerAnswers.fill("Spaghetti");
     //startCountdown(promptTime, "PROMPT");
 }
 
