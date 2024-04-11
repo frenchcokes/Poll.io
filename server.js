@@ -13,24 +13,24 @@ playerScores = [0, 0, 0, 0, 0, 0, 0, 0];
 
 const path = require('path');
 const { debug } = require('console');
-const { setInterval } = require('timers/promises');
+//const { setInterval } = require('timers/promises');
 const { stringify } = require('querystring');
+const { setInterval } = require('timers');
 
 app.get('/', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/game.html"));
 })
 
-/*
-app.get('/game', async(req, res) => {
-    res.sendFile(path.join(__dirname, "/public/game.html"));
-})
-*/
-
 numberOfResponses = 0;
 numberOfVoteResponses = 0;
 voteResponseCounter = [];
+
+promptTime = -1;
+voteTime = -1;
+resultTime = -1;
 wss.on('connection', (ws, req) => {
     clients.add(ws);
+
     const currentDate = new Date();
     console.log("(" + currentDate + ") A client connected! There are now: " + clients.size + " connected.");
     //setRoundCountdown(5);
@@ -60,7 +60,11 @@ wss.on('connection', (ws, req) => {
                 })
                 break;
             case "STARTGAME":
-                setRoundTime();
+                promptTime = jsonData.promptTime;
+                voteTime = jsonData.voteTime;
+                resultTime = jsonData.resultTime;
+
+                startCountdown(promptTime, "PROMPT");
                 console.log("Started Game!");
                 
                 var selectedPrompt = "Hello";
@@ -120,6 +124,8 @@ wss.on('connection', (ws, req) => {
 })
 
 function startResults() {
+    clearInterval(intervalID);
+    startCountdown(resultTime, "RESULT");
     scoreChanges=[];
     for (var i = 0; i < voteResponseCounter.length; i++) {
         playerScores[i] = playerScores[i] + (voteResponseCounter[i] * 1000);
@@ -145,6 +151,8 @@ function startResults() {
 }
 
 function startVotes() {
+    clearInterval(intervalID);
+    startCountdown(voteTime, "VOTE");
     //Refresh vote counter
     var length = clients.size;
     voteResponseCounter = Array.from({ length }, () => 0);
@@ -167,7 +175,7 @@ function startVotes() {
 
 var intervalID;
 var time = 30;
-function countdown() {
+function countdown(type) {
     wss.clients.forEach((client) => {
         const timeData = {
             type : "LOOP",
@@ -177,14 +185,28 @@ function countdown() {
     })
     time = time - 1;
     if(time < 0) {
+        switch(type) {
+            case "PROMPT":
+                startVotes();
+                console.log("Prompt countdown done!");
+                break;
+            case "VOTE":
+                startResults();
+                console.log("Vote countdown done!");
+                break;
+            case "RESULT":
+                console.log("Result countdown done!");
+                break;
+        }
         clearInterval(intervalID);
     }
 }
-
-function setRoundTime() {
-    if(!intervalID) {
-        intervalID = setInterval(countdown, 1000);
-    }
+function startCountdown(length, type) {
+    clearInterval(intervalID);
+    time = length;
+    intervalID = setInterval(() => {
+        countdown(type);
+    }, 1000);
     
 }
 
@@ -207,19 +229,6 @@ function update() {
                 playerNames: outputNames,
                 playerScores: outputScores,
                 playerIndex: x
-            }
-            client.send(JSON.stringify(data));
-        }
-    })
-}
-
-
-function setRoundCountdown(duration) {
-    wss.clients.forEach((client) => {
-        if(client.readyState == WebSocket.OPEN) {
-            const data = {
-                type : "LOOP",
-                roundTime : duration
             }
             client.send(JSON.stringify(data));
         }
