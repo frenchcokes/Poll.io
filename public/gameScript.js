@@ -56,6 +56,7 @@ ws.onmessage = (event) => {
             startVoteUI(jsonParse.playerNames, jsonParse.playerAnswers);
             break;
         case "VOTERESULTS":
+            startResultsUI(jsonParse.playerNames, jsonParse.playerAnswers, jsonParse.playerVotes, jsonParse.scoreChanges);
             break;
         case "FINALRESULTS":
             break;
@@ -262,24 +263,10 @@ function startVoteUI(playerNames, playerAnswers) {
     VOTEROWCONTAINERS[1].innerHTML = "";
     buttons = [];
     for (var i = 0; i < numberOfButtons; i++) {
-            const voteButton = document.createElement('div');
-            voteButton.classList.add('vote-button');
-            voteButton.setAttribute("id", i);
-
-            const voteButtonVotesText = document.createElement('div');
-            voteButtonVotesText.classList.add('vote-button-votes-text');
-            voteButtonVotesText.textContent = " ";
-
-            const voteButtonPromptText = document.createElement('div');
-            voteButtonPromptText.classList.add('vote-button-prompt-text');
-            voteButtonPromptText.textContent = playerAnswers[i];
-
-            voteButton.appendChild(voteButtonVotesText);
-            voteButton.appendChild(voteButtonPromptText);
-            buttons.push(voteButton);
+            buttons.push(createVoteButton(i, " ", playerAnswers[i]));
     }
 
-    displayToRows(buttons, false);
+    displayToRows(buttons, true);
     
     var divs = document.getElementsByClassName("vote-button");
     for (var i = 0; i < divs.length; i++) {
@@ -301,6 +288,56 @@ function startVoteUI(playerNames, playerAnswers) {
             });
         })(divs[i]);
     }
+}
+
+function startResultsUI(playerNames, playerAnswers, votes, scoreChanges) {
+    VOTEROWCONTAINERS[0].innerHTML = "";
+    VOTEROWCONTAINERS[1].innerHTML = "";
+    VOTESEND.style.visibility = "hidden";
+
+    voteButtons = [];
+    for (var i = 0; i < playerAnswers.length; i++) {
+        var displayString = playerNames[i] + " (" + votes[i] + ")";
+        voteButtons.push(createVoteButton(-1, displayString, playerAnswers[i]));
+    }
+    displayToRows(voteButtons, false);
+
+    displayScoreChanges(scoreChanges);
+}
+
+//HELPER FUNCTIONS
+function displayScoreChanges(scoreChanges) {
+    for (var i = 0; i < scoreChanges.length; i++) {
+        displayScoreChangeForPlayer(i, scoreChanges[i]);
+    }
+}
+
+function displayScoreChangeForPlayer(index, magnitude) {
+    var playerContainers = document.getElementsByClassName("player-box");
+
+    const playerScoreChangeBox = document.createElement("div");
+    playerScoreChangeBox.classList.add("player-score-change-box");
+    playerScoreChangeBox.innerText = "(+" + magnitude + ")";
+
+    playerContainers[index].appendChild(playerScoreChangeBox);
+}
+
+function createVoteButton(idValue, textContent, promptTextContent) {
+    const voteButton = document.createElement('div');
+    voteButton.classList.add('vote-button');
+    voteButton.setAttribute("id", idValue);
+
+    const voteButtonVotesText = document.createElement('div');
+    voteButtonVotesText.classList.add('vote-button-votes-text');
+    voteButtonVotesText.textContent = textContent;
+
+    const voteButtonPromptText = document.createElement('div');
+    voteButtonPromptText.classList.add('vote-button-prompt-text');
+    voteButtonPromptText.textContent = promptTextContent;
+
+    voteButton.appendChild(voteButtonVotesText);
+    voteButton.appendChild(voteButtonPromptText);
+    return voteButton;
 }
 
 function displayToRows(buttons, isRandom) {

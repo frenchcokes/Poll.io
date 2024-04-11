@@ -9,7 +9,7 @@ const wss = new WebSocket.Server({ server });
 const clients = new Set();
 playerNames = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Player 8"];
 playerAnswers = [];
-const playerScores = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
+playerScores = [0, 0, 0, 0, 0, 0, 0, 0];
 
 const path = require('path');
 const { debug } = require('console');
@@ -120,17 +120,28 @@ wss.on('connection', (ws, req) => {
 })
 
 function startResults() {
-    console.log("Displayed Results");
-    /*
+    scoreChanges=[];
+    for (var i = 0; i < voteResponseCounter.length; i++) {
+        playerScores[i] = playerScores[i] + (voteResponseCounter[i] * 1000);
+        scoreChanges.push(voteResponseCounter[i] * 1000);
+    }
+    update();
+
+
+
     wss.clients.forEach((client) => {
         if(client.readyState == WebSocket.OPEN) {
             const d = {
-                type: "CHATBOXMESSAGERECEIVED"
+                type: "VOTERESULTS",
+                playerNames: playerNames,
+                playerAnswers: playerAnswers,
+                playerVotes: voteResponseCounter,
+                scoreChanges: scoreChanges
             }
             client.send(JSON.stringify(d));
         }
     })
-    */
+    
 }
 
 function startVotes() {
