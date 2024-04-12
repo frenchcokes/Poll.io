@@ -70,6 +70,7 @@ wss.on('connection', (ws, req) => {
                 startCountdown(promptTime, "PROMPT");
                 console.log("Started Game!");
                 
+                //Should generate random prompt from package
                 var selectedPrompt = "Hello";
                 const data = {
                     type: "STARTGAME",
@@ -83,7 +84,7 @@ wss.on('connection', (ws, req) => {
                     }
                 })
                 playerAnswers = new Array(clients.length);
-                playerAnswers.fill("Spaghetti");
+                playerAnswers.fill("Quarter Pounder with Cheese");
                 break;
             case "PROMPTSUBMISSION":
                 console.log("Received prompt: " + jsonData.prompt)
@@ -209,11 +210,24 @@ function countdown(type) {
                 if(roundCounter < rounds) {
                     nextRound();
                 }
+                else {
+                    resultsScreen();
+                }
                 console.log("Result countdown done!");
                 break;
         }
     }
 }
+
+function resultsScreen() {
+    const data = {
+        type: "FINALRESULTS",
+        playerNames: playerNames,
+        playerScores: playerScores
+    }
+    stringifyData = JSON.stringify(data);
+}
+
 function startCountdown(length, type) {
     console.log("Started: " + type + " countdown.")
     clearInterval(intervalID);
@@ -242,7 +256,7 @@ function nextRound() {
         }
     })
     playerAnswers = new Array(clients.length);
-    playerAnswers.fill("Spaghetti");
+    playerAnswers.fill("Quarter Pounder With Cheese");
     //startCountdown(promptTime, "PROMPT");
 }
 

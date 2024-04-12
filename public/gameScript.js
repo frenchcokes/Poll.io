@@ -60,11 +60,16 @@ ws.onmessage = (event) => {
             startResultsUI(jsonParse.playerNames, jsonParse.playerAnswers, jsonParse.playerVotes, jsonParse.scoreChanges);
             break;
         case "FINALRESULTS":
+            startFinalResultsUI(jsonParse.playerNames, jsonParse.playerScores);
             break;
         case "CHATBOXMESSAGERECEIVED":
             addMessageToChatbox(jsonParse.message, jsonParse.sender);
             break;
     }
+}
+
+function startFinalResultsUI(playerNames, playerScores) {
+    //Implement me!
 }
 
 function addMessageToChatbox(messageText, sender) {

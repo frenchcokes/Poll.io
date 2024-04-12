@@ -166,6 +166,32 @@
     height: 575px;
 }
 
+.results-container {
+    margin-top: 10px;
+    background-color: pink;
+    width: 775px;
+    height: 575px;
+  
+    text-align: center;
+    display: none;
+}
+
+.results-heading {
+    font-size: 45px;
+}
+
+.results {
+    font-size: 30px;
+    margin-top: 10px;
+}
+
+.results-next-game {
+    font-size: 20px;
+    width: 100px;
+    height: 50px;
+    margin-top: 20px;
+}
+
 .game-menu-row {
     margin-top: 10px;
     display: flex;
