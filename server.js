@@ -25,6 +25,13 @@ numberOfResponses = 0;
 numberOfVoteResponses = 0;
 voteResponseCounter = [];
 
+isPack1 = false;
+pack1Prompts = [];
+isPack2 = false;
+pack2Prompts = [];
+isPack3 = false;
+pack3Prompts = [];
+
 promptTime = -1;
 voteTime = -1;
 resultTime = -1;
@@ -66,12 +73,16 @@ wss.on('connection', (ws, req) => {
                 voteTime = jsonData.voteTime;
                 resultTime = jsonData.resultTime;
                 rounds = jsonData.rounds;
+                
+                isPack1 = jsonData.isPack1;
+                isPack2 = jsonData.isPack2;
+                isPack3 = jsonData.isPack3;
 
                 startCountdown(promptTime, "PROMPT");
                 console.log("Started Game!");
                 
                 //Should generate random prompt from package
-                var selectedPrompt = "Hello";
+                var selectedPrompt = generateRandomPrompt();
                 const data = {
                     type: "STARTGAME",
                     prompt: selectedPrompt,
@@ -142,6 +153,24 @@ wss.on('connection', (ws, req) => {
         update();
     })
 })
+
+function generateRandomPrompt() {
+    possiblePrompts = [];
+    if(isPack1 === true) {
+        possiblePrompts = possiblePrompts.concat(pack1Prompts);
+    }
+    if(isPack2 === true) {
+        possiblePrompts = possiblePrompts.concat(pack1Prompts);
+    }
+    if(isPack3 === true) {
+        possiblePrompts = possiblePrompts.concat(pack1Prompts);
+    }
+
+    var randomIndex = Math.floor(Math.random() * possiblePrompts.length);
+    var value = possiblePrompts[randomIndex];
+
+    return value;
+}
 
 function startResults() {
     clearInterval(intervalID);
