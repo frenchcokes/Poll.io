@@ -122,6 +122,16 @@ wss.on('connection', (ws, req) => {
                     }
                 })
                 break;
+            case "BACKTOMENU":
+                wss.clients.forEach((client) => {
+                    if(client.readyState == WebSocket.OPEN) {
+                        const d = {
+                            type: "BACKTOMENU"
+                        }
+                        client.send(JSON.stringify(d));
+                    }
+                })
+                break;
         }
     });
 
@@ -220,12 +230,20 @@ function countdown(type) {
 }
 
 function resultsScreen() {
+    var remainingClients = clients.size;
+    var outputNames = playerNames.slice(0, remainingClients);
+    var outputPlayerScores = playerScores.slice(0, remainingClients);
     const data = {
         type: "FINALRESULTS",
-        playerNames: playerNames,
-        playerScores: playerScores
+        playerNames: outputNames,
+        playerScores: outputPlayerScores
     }
     stringifyData = JSON.stringify(data);
+    wss.clients.forEach((client) => {
+        if(client.readyState == WebSocket.OPEN) {
+            client.send(stringifyData);
+        }
+    })
 }
 
 function startCountdown(length, type) {

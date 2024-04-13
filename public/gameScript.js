@@ -4,6 +4,11 @@ const PLAYERSCONTAINER = document.querySelector('.player-container');
 const ROUNDTIMERTEXT = document.querySelector('.round-timer')
 const ROUNDDISPLAYTEXT = document.querySelector('.round-display');
 
+const RESULTSCONTAINER = document.querySelector('.results-container');
+const RESULTSTEXT = document.querySelector('.results');
+const RESULTSNEXTGAMEBUTTON = document.querySelector('.results-next-game');
+
+const MAINGAMEPLAY = document.querySelector('.main-gameplay');
 const PROMPTTEXT = document.getElementById("PROMPT");
 
 const VOTESCONTAINER = document.getElementById("VOTESCONTAINER");
@@ -65,11 +70,54 @@ ws.onmessage = (event) => {
         case "CHATBOXMESSAGERECEIVED":
             addMessageToChatbox(jsonParse.message, jsonParse.sender);
             break;
+        case "BACKTOMENU":
+            backToMenu();
+            break;
     }
+}
+
+function backToMenu() {
+    GAMEMENUCONTAINER.style.display = "block";
+    RESULTSCONTAINER.style.display = "none";
 }
 
 function startFinalResultsUI(playerNames, playerScores) {
     //Implement me!
+    var playerBoxes = document.getElementsByClassName("player-box");
+    for (var i = 0; i < playerBoxes.length; i++) {
+        var toRemove = playerBoxes[i].getElementsByClassName("player-score-change-box")[0];
+        playerBoxes[i].removeChild(toRemove);
+    }
+
+    MAINGAMEPLAY.style.display = "none";
+    RESULTSCONTAINER.style.display = "block";
+    RESULTSTEXT.innerHTML = "";
+
+    //Bubblesort algorithm
+    var len = playerScores.length;
+    for (var i = 0; i < len; i++) {
+        for (var j = 0; j < len - 1; j++) {
+            if (playerScores[j] < playerScores[j + 1]) {
+                var temp = playerScores[j];
+                playerScores[j] = playerScores[j + 1];
+                playerScores[j + 1] = temp;
+
+                var temp2 = playerNames[j];
+                playerNames[j] = playerNames[j + 1];
+                playerNames[j + 1] = temp2;
+            }
+        }
+    }
+
+    var scoreLen = playerNames.length;
+    for (var i = 0; i < scoreLen; i++) {
+        var row = document.createElement("span");
+        row.textContent = (i + 1) + ". " + playerNames[i] + " (" + playerScores[i] + ")";
+        var brElem = document.createElement("br");
+
+        RESULTSTEXT.appendChild(row);
+        RESULTSTEXT.appendChild(brElem);
+    }
 }
 
 function addMessageToChatbox(messageText, sender) {
@@ -82,6 +130,14 @@ function addMessageToChatbox(messageText, sender) {
 
 function startGame(jsonParse) {
     hideAllGameElements();
+
+    var playerBoxes = document.getElementsByClassName("player-box");
+    for (var i = 0; i < playerBoxes.length; i++) {
+        var toRemove = playerBoxes[i].getElementsByClassName("player-score-change-box");
+        while(toRemove.length > 0) {
+            playerBoxes[i].removeChild(toRemove[0]);
+        }
+    }
 
     ROUNDDISPLAYTEXT.innerHTML = "Round " + jsonParse.round;
     GAMEMENUCONTAINER.style.display = "none";
@@ -252,6 +308,13 @@ function addListenersToMenu() {
             }
         }
     });
+
+    RESULTSNEXTGAMEBUTTON.addEventListener("click", function() {
+        const d = {
+            type: "BACKTOMENU"
+        }
+        ws.send(JSON.stringify(d));
+    })
 }
 addListenersToMenu();
 
@@ -296,6 +359,8 @@ function startVoteUI(playerNames, playerAnswers) {
             });
         })(divs[i]);
     }
+
+
 }
 
 function startResultsUI(playerNames, playerAnswers, votes, scoreChanges) {
