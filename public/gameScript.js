@@ -49,9 +49,6 @@ ws.onmessage = (event) => {
         case "STARTGAME":
             startGame(jsonParse);
             break;
-        case "MENU":
-            //startGameMenuUI(jsonParse);
-            break;
         case "UPDATE":
             updatePlayerButtons(jsonParse.playerNames, jsonParse.playerScores, jsonParse.playerIndex);
             break;

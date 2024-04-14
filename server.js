@@ -13,7 +13,6 @@ playerScores = [0, 0, 0, 0, 0, 0, 0, 0];
 
 const path = require('path');
 const { debug } = require('console');
-//const { setInterval } = require('timers/promises');
 const { stringify } = require('querystring');
 const { setInterval } = require('timers');
 
@@ -42,7 +41,6 @@ wss.on('connection', (ws, req) => {
 
     const currentDate = new Date();
     console.log("(" + currentDate + ") A client connected! There are now: " + clients.size + " connected.");
-    //setRoundCountdown(5);
     startVoteUI();
     update();
 
@@ -304,7 +302,6 @@ function nextRound() {
     })
     playerAnswers = new Array(clients.length);
     playerAnswers.fill("Quarter Pounder With Cheese");
-    //startCountdown(promptTime, "PROMPT");
 }
 
 function update() {
