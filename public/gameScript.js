@@ -32,9 +32,9 @@ const PACK1 = document.getElementById("PACK1");
 const PACK2 = document.getElementById("PACK2");
 const PACK3 = document.getElementById("PACK3");
 
-var GAMEMENUCONTAINER = document.getElementById("GAMEMENUCONTAINER");
+const GAMEMENUCONTAINER = document.getElementById("GAMEMENUCONTAINER");
 
-var GAMESTARTBUTTON = document.getElementById("GAMESTARTBUTTON");
+const GAMESTARTBUTTON = document.getElementById("GAMESTARTBUTTON");
 
 ws.onopen = () => {
     console.log('Successfully connected to server!');
