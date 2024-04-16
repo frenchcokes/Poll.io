@@ -12,8 +12,6 @@ playerAnswers = [];
 playerScores = [0, 0, 0, 0, 0, 0, 0, 0];
 
 const path = require('path');
-const { debug } = require('console');
-const { stringify } = require('querystring');
 const { setInterval } = require('timers');
 
 app.get('/', async(req, res) => {
