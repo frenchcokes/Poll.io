@@ -2,12 +2,9 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 
-const WebSocket = require('ws');
-const io = socketIo(server);
-
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const io = socketIo(server);
 
 const clients = new Set();
 playerNames = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Player 8"];
@@ -37,6 +34,33 @@ voteTime = -1;
 resultTime = -1;
 rounds = -1;
 roundCounter = 1;
+
+const roomSocketCounts = {};
+io.on('connection', (socket) => {
+    console.log("A user has connected!");
+
+    socket.connectedRoom = -1;
+    socket.on('joinRoom', (roomId) => {
+        socket.join(roomId);
+        socket.connectedRoom = roomId;
+        if(roomSocketCounts[roomId] === undefined) {
+            roomSocketCounts[roomId] = 1;
+        }
+        else {
+            roomSocketCounts[roomId] = roomSocketCounts[roomId] + 1;
+        }
+        console.log("A client has joined room: " + roomId + ". There are now " + roomSocketCounts[roomId] + " clients in the room.");
+    });
+
+    socket.on('disconnect', () => {
+        const roomId = socket.connectedRoom;
+        roomSocketCounts[roomId] = roomSocketCounts[roomId] - 1;
+        console.log('A client has disconnected from room: ' + roomId + ". There are now " + roomSocketCounts[roomId] + " clients in the room.");
+    });
+
+});
+/*
+//Below code needs to be changed
 wss.on('connection', (ws, req) => {
     clients.add(ws);
 
@@ -347,7 +371,7 @@ function startVoteUI() {
         }
     })
 }
-
+*/
 server.listen(3000, () => {
     console.log('Server started on http://localhost:3000');
 });
