@@ -1,6 +1,6 @@
-const ws = new WebSocket('ws://localhost:3000');
 
-const socket = io();
+const socket = io('http://localhost:3000');
+socket.emit("joinRoom", "room1");
 
 const PLAYERSCONTAINER = document.querySelector('.player-container');
 const ROUNDTIMERTEXT = document.querySelector('.round-timer')
