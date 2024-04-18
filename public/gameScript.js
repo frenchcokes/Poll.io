@@ -1,5 +1,7 @@
 const ws = new WebSocket('ws://localhost:3000');
 
+const socket = io();
+
 const PLAYERSCONTAINER = document.querySelector('.player-container');
 const ROUNDTIMERTEXT = document.querySelector('.round-timer')
 const ROUNDDISPLAYTEXT = document.querySelector('.round-display');
