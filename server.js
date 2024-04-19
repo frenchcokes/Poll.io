@@ -1,4 +1,4 @@
-const { Game, Player, Room } = require('./helper.js');
+const { Player, Room } = require('./helper.js');
 
 const express = require('express');
 const http = require('http');
@@ -8,11 +8,6 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const clients = new Set();
-playerNames = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5", "Player 6", "Player 7", "Player 8"];
-playerAnswers = [];
-playerScores = [0, 0, 0, 0, 0, 0, 0, 0];
-
 const path = require('path');
 const { setInterval } = require('timers');
 
@@ -20,38 +15,22 @@ app.get('/', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/game.html"));
 })
 
-numberOfResponses = 0;
-numberOfVoteResponses = 0;
-voteResponseCounter = [];
-
-isPack1 = false;
-pack1Prompts = [];
-isPack2 = false;
-pack2Prompts = [];
-isPack3 = false;
-pack3Prompts = [];
-
-promptTime = -1;
-voteTime = -1;
-resultTime = -1;
-rounds = -1;
-roundCounter = 1;
-
 const rooms = {};
 io.on('connection', (socket) => {
     console.log("A user has connected!");
 
     socket.player = null;
-    socket.on('joinRoom', (roomId) => {
-        socket.join(roomId);
+    socket.on('joinRoom', (roomID) => {
+        socket.join(roomID);
         socket.player = new Player("Player", 0);
 
-        if(rooms[roomId] === undefined) { 
-            rooms[roomId] = new Room(roomId);
+        if(rooms[roomID] === undefined) { 
+            rooms[roomID] = new Room(roomID);
         }
-        rooms[roomId].addPlayer(socket.player);
+        rooms[roomID].addPlayer(socket.player);
+        updatePlayerButtons(roomID);
 
-        console.log("A client has joined room: " + roomId + ". There are now " + rooms[roomId].size() + " clients in the room.");
+        console.log("A client has joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
     });
 
     socket.on('disconnect', () => {
@@ -67,134 +46,70 @@ io.on('connection', (socket) => {
     socket.on('chatboxSubmission', (message) => {
         socket.broadcast.to(socket.player.getRoomID()).emit('chatboxMessageReceived', { sender: socket.player.name, message: message });
     });
-});
-/*
-//Below code needs to be changed
-wss.on('connection', (ws, req) => {
-    clients.add(ws);
 
-    const currentDate = new Date();
-    console.log("(" + currentDate + ") A client connected! There are now: " + clients.size + " connected.");
-    startVoteUI();
-    update();
+    socket.on('startGame', (data) => {
+        const room = rooms[socket.player.getRoomID()];
+        room.promptTime = data.promptTime;
+        room.voteTime = data.voteTime;
+        room.resultTime = data.resultTime;
+        room.rounds = data.rounds;
 
-    wss.clients.forEach((client) => {
-        if(client.readyState == WebSocket.OPEN) {
-            const d = {
-                type: "CHATBOXMESSAGERECEIVED",
-                sender: "System",
-                message: "A player has joined!"
-            }
-            client.send(JSON.stringify(d));
-        }
-    })
+        room.isPack1 = data.isPack1;
+        room.isPack2 = data.isPack2;
+        room.isPack3 = data.isPack3;
 
-    ws.on("message", function clientInput(message) {
-        //Send this data 
-        jsonData = JSON.parse(message);
-        switch(jsonData.type) {
-            case "MENUUPDATE":
-                wss.clients.forEach((client) => {
-                    if(client.readyState == WebSocket.OPEN && client !== ws) {
-                        client.send(JSON.stringify(jsonData));
-                    }
-                })
-                break;
-            case "STARTGAME":
-                promptTime = jsonData.promptTime;
-                voteTime = jsonData.voteTime;
-                resultTime = jsonData.resultTime;
-                rounds = jsonData.rounds;
-                
-                isPack1 = jsonData.isPack1;
-                isPack2 = jsonData.isPack2;
-                isPack3 = jsonData.isPack3;
+        startCountdown(room.promptTime, "PROMPT", game);
+        console.log("Started game for room: " + roomID);
 
-                startCountdown(promptTime, "PROMPT");
-                console.log("Started Game!");
-                
-                //Should generate random prompt from package
-                var selectedPrompt = generateRandomPrompt();
-                const data = {
-                    type: "STARTGAME",
-                    prompt: selectedPrompt,
-                    round: roundCounter
-                }
-                stringifyData = JSON.stringify(data);
-                wss.clients.forEach((client) => {
-                    if(client.readyState == WebSocket.OPEN) {
-                        client.send(stringifyData);
-                    }
-                })
-                playerAnswers = new Array(clients.length);
-                playerAnswers.fill("Quarter Pounder with Cheese");
-                break;
-            case "PROMPTSUBMISSION":
-                console.log("Received prompt: " + jsonData.prompt)
-                numberOfResponses = numberOfResponses + 1;
+        var selectedPrompt = generateRandomPrompt(room);
 
-                let myArray = Array.from(clients);
-                playerAnswers[myArray.indexOf(ws)] = jsonData.prompt;
+        io.to(socket.player.getRoomID()).emit('startGame', { prompt: selectedPrompt, round: room.currentRound });
+    });
 
+    socket.on('promptSubmission', (prompt) => {
+        console.log("Received prompt: " + prompt)
+        socket.player.answer = prompt;
+        const isAllResponses = rooms[socket.player.getRoomID()].responseAdded();
 
-                if(numberOfResponses === clients.size) {
-                    console.log("Changed to vote page.");
-                    numberOfResponses = 0;
-                    startVotes();
-                }
-                break;
-            case "VOTESUBMISSION":
-                console.log("received vote index: " + jsonData.voteIndex);
-                numberOfVoteResponses = numberOfVoteResponses + 1;
-                voteResponseCounter[jsonData.voteIndex] = voteResponseCounter[jsonData.voteIndex] + 1;
-                if(numberOfVoteResponses === clients.size) {
-                    console.log("Changed to responses page.");
-                    numberOfVoteResponses = 0;
-                    startResults();
-                }
-                break;
-            case "CHATBOXSUBMISSION":
-                wss.clients.forEach((client) => {
-                    if(client.readyState == WebSocket.OPEN && client !== ws) {
-                        const d = {
-                            type: "CHATBOXMESSAGERECEIVED",
-                            sender: playerNames[0],
-                            message: jsonData.message
-                        }
-                        client.send(JSON.stringify(d));
-                    }
-                })
-                break;
-            case "BACKTOMENU":
-                wss.clients.forEach((client) => {
-                    if(client.readyState == WebSocket.OPEN) {
-                        const d = {
-                            type: "BACKTOMENU"
-                        }
-                        client.send(JSON.stringify(d));
-                    }
-                })
-                break;
+        if(isAllResponses === true) {
+            startVotes(rooms[socket.player.getRoomID()]);
         }
     });
 
-    ws.on('close', function() {
-        const currentDate = new Date();
-        clients.delete(ws);
-        console.log("(" + currentDate + ") A client connected! There are now: " + clients.size + " connected.");
-        update();
-    })
-})
+    socket.on('voteSubmission', (voteIndex) => {
+        console.log("Received vote index: " + voteIndex);
+        rooms[socket.player.getRoomID()].addVoteToCounterIndex(voteIndex);
+        const isAllResponses = rooms[socket.player.getRoomID()].responseAdded();
 
-function generateRandomPrompt() {
+        if(isAllResponses === true) {
+            startResults(rooms[socket.player.getRoomID()]);
+        }
+    });
+
+    socket.on('backToMenu', () => {
+        io.to(socket.player.getRoomID()).emit('backToMenu');
+    });
+});
+
+function updatePlayerButtons(roomID) {
+    const socketsInRoom = io.sockets.adapter.rooms.get(roomID);
+    var counter = 0;
+    for (const socketID of socketsInRoom) {
+        const socket = io.sockets.sockets.get(socketID);
+        socket.emit('updatePlayerButtons', { playerNames: rooms[roomID].getPlayerNames(), playerScores: rooms[roomID].getPlayerScores(), playerIndex : counter});
+        counter++;
+    }
+}
+
+function generateRandomPrompt(game) {
     possiblePrompts = [];
-    if(isPack1 === true) {
+    if(game.isPack1 === true) {
         possiblePrompts = possiblePrompts.concat(pack1Prompts);
     }
-    if(isPack2 === true) {
+    if(game.isPack2 === true) {
         possiblePrompts = possiblePrompts.concat(pack1Prompts);
     }
-    if(isPack3 === true) {
+    if(game.isPack3 === true) {
         possiblePrompts = possiblePrompts.concat(pack1Prompts);
     }
 
@@ -204,85 +119,53 @@ function generateRandomPrompt() {
     return value;
 }
 
-function startResults() {
-    clearInterval(intervalID);
-    startCountdown(resultTime, "RESULT");
-    scoreChanges=[];
-    for (var i = 0; i < voteResponseCounter.length; i++) {
-        playerScores[i] = playerScores[i] + (voteResponseCounter[i] * 1000);
-        scoreChanges.push(voteResponseCounter[i] * 1000);
+function startResults(game) {
+    game.clearInterval();
+    startCountdown(resultTime, "RESULT", game);
+
+    game.resetScoreChanges();
+
+    const players = game.getPlayers();
+    for (var i = 0; i < players.length; i++) {
+        players[i].addScore(game.getVoteResponseCounter()[i] * 1000);
+        game.addscoreChangesToIndex(i, game.getVoteResponseCounter()[i] * 1000);
     }
-    update();
+    updatePlayerButtons(game.getID());
 
-
-
-    wss.clients.forEach((client) => {
-        if(client.readyState == WebSocket.OPEN) {
-            const d = {
-                type: "VOTERESULTS",
-                playerNames: playerNames,
-                playerAnswers: playerAnswers,
-                playerVotes: voteResponseCounter,
-                scoreChanges: scoreChanges
-            }
-            client.send(JSON.stringify(d));
-        }
-    })
-    
+    io.to(game.getID()).emit('voteResults', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), playerVotes: game.getVoteResponseCounter(), scoreChanges: game.getScoreChanges() });
 }
 
-function startVotes() {
-    clearInterval(intervalID);
-    startCountdown(voteTime, "VOTE");
-    //Refresh vote counter
-    var length = clients.size;
-    voteResponseCounter = Array.from({ length }, () => 0);
+function startVotes(game) {
+    game.clearInterval();
+    startCountdown(voteTime, "VOTE", game);
 
-    var outputNames = [];
-    var length = clients.size;
-    for (var i = 0; i < length; i++) {
-        outputNames.push(playerNames[0]);
-    }
+    game.resetResponseVoteCounter();
 
-    wss.clients.forEach((client) => {
-        const d = {
-            type: "STARTVOTE",
-            playerNames: outputNames,
-            playerAnswers: playerAnswers 
-        }
-        client.send(JSON.stringify(d));
-    })
+    io.to(game.getID()).emit('startVotes', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers() });
 }
 
-var intervalID;
-var time = 30;
-function countdown(type) {
-    wss.clients.forEach((client) => {
-        const timeData = {
-            type : "LOOP",
-            roundTime: time 
-        }
-        client.send(JSON.stringify(timeData));
-    })
-    time = time - 1;
-    if(time < 0) {
-        clearInterval(intervalID);
+function countdown(type, game) {
+    io.to(game.getID()).emit('loop', { time: game.getTime() });
+
+    game.progressTime();
+    if(game.getTime() < 0) {
+        game.clearInterval();
         switch(type) {
             case "PROMPT":
                 
-                startVotes();
+                startVotes(game);
                 console.log("Prompt countdown done!");
                 break;
             case "VOTE":
-                startResults();
+                startResults(game);
                 console.log("Vote countdown done!");
                 break;
             case "RESULT":
-                if(roundCounter < rounds) {
-                    nextRound();
+                if(game.getCurrentRound() < game.getRounds()) {
+                    nextRound(game);
                 }
                 else {
-                    resultsScreen();
+                    resultsScreen(game);
                 }
                 console.log("Result countdown done!");
                 break;
@@ -290,97 +173,33 @@ function countdown(type) {
     }
 }
 
-function resultsScreen() {
-    var remainingClients = clients.size;
-    var outputNames = playerNames.slice(0, remainingClients);
-    var outputPlayerScores = playerScores.slice(0, remainingClients);
-    const data = {
-        type: "FINALRESULTS",
-        playerNames: outputNames,
-        playerScores: outputPlayerScores
-    }
-    stringifyData = JSON.stringify(data);
-    wss.clients.forEach((client) => {
-        if(client.readyState == WebSocket.OPEN) {
-            client.send(stringifyData);
-        }
-    })
+
+function resultsScreen(game) {
+    io.to(game.getID()).emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores() });
 }
 
-function startCountdown(length, type) {
+
+function startCountdown(length, type, game) {
     console.log("Started: " + type + " countdown.")
-    clearInterval(intervalID);
-    time = length;
-    intervalID = setInterval(() => {
-        countdown(type);
+    game.clearInterval();
+    game.setTime(length);
+    var intervalID  = setInterval(() => {
+        countdown(type, game);
     }, 1000);
+    game.setInterval(intervalID);
     
 }
 
-function nextRound() {
-    clearInterval(intervalID);
+function nextRound(game) {
+    game.clearInterval();
     startCountdown(promptTime, "PROMPT");
 
-    roundCounter = roundCounter + 1;
-    var selectedPrompt = "Hello";
-    const data = {
-        type: "STARTGAME",
-        prompt: selectedPrompt,
-        round: roundCounter
-    }
-    stringifyData = JSON.stringify(data);
-    wss.clients.forEach((client) => {
-        if(client.readyState == WebSocket.OPEN) {
-            client.send(stringifyData);
-        }
-    })
-    playerAnswers = new Array(clients.length);
-    playerAnswers.fill("Quarter Pounder With Cheese");
+    game.nextRound();
+    var selectedPrompt = generateRandomPrompt(game);
+    io.to(game.getID()).emit('startGame', { prompt: selectedPrompt, round: game.currentRound });
 }
 
-function update() {
-    x = -1;
-    wss.clients.forEach((client) => {
-        var length = clients.size;
-        var outputNames = [];
-        var outputScores = [];
-        for (var i = 0; i < length; i++) {
-            outputNames.push(playerNames[i]);
-            outputScores.push(playerScores[i]);
-        }
-        x = x + 1;
-        if(client.readyState == WebSocket.OPEN) {
-            const data = {
-                type : "UPDATE",
-                playerNames: outputNames,
-                playerScores: outputScores,
-                playerIndex: x
-            }
-            client.send(JSON.stringify(data));
-        }
-    })
-}
 
-function startVoteUI() {
-    wss.clients.forEach((client) => {
-        var length = clients.size;
-        var outputNames = [];
-        var outputAnswers = [];
-        for (var i = 0; i < length; i++) {
-            outputNames.push(playerNames[i]);
-            outputAnswers.push(playerAnswers[i]);
-        }
-        if(client.readyState == WebSocket.OPEN) {
-            const data = {
-                type : "STARTVOTE",
-                playerNames: outputNames,
-                playerAnswers: outputAnswers
-            }
-            client.send(JSON.stringify(data));
-        }
-    })
-}
-*/
 server.listen(3000, () => {
     console.log('Server started on http://localhost:3000');
 });

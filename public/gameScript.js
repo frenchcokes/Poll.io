@@ -38,14 +38,12 @@ const GAMEMENUCONTAINER = document.getElementById("GAMEMENUCONTAINER");
 
 const GAMESTARTBUTTON = document.getElementById("GAMESTARTBUTTON");
 
-/*
-ws.onopen = () => {
-    console.log('Successfully connected to server!');
-}
-*/
-
 socket.on("chatboxMessageReceived", (dataJson) => {
     addMessageToChatbox(dataJson.message, dataJson.sender);
+});
+
+socket.on("updatePlayerButtons", (dataJson) => {
+    updatePlayerButtons(dataJson.playerNames, dataJson.playerScores, dataJson.playerIndex);
 });
 
 /*
