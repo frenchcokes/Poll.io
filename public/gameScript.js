@@ -38,10 +38,17 @@ const GAMEMENUCONTAINER = document.getElementById("GAMEMENUCONTAINER");
 
 const GAMESTARTBUTTON = document.getElementById("GAMESTARTBUTTON");
 
+/*
 ws.onopen = () => {
     console.log('Successfully connected to server!');
 }
+*/
 
+socket.on("chatboxMessageReceived", (dataJson) => {
+    addMessageToChatbox(dataJson.message, dataJson.sender);
+});
+
+/*
 ws.onmessage = (event) => {
     jsonParse = JSON.parse(event.data);
     switch(jsonParse.type) {
@@ -74,6 +81,7 @@ ws.onmessage = (event) => {
             break;
     }
 }
+*/
 
 function backToMenu() {
     GAMEMENUCONTAINER.style.display = "block";
@@ -280,11 +288,7 @@ function addListenersToMenu() {
 
     CHATBOXSEND.addEventListener("click", function() {
         if(CHATBOXFIELD.value !== "") {
-            const d = {
-                type: "CHATBOXSUBMISSION",
-                message: CHATBOXFIELD.value
-            }
-            ws.send(JSON.stringify(d));
+            socket.emit("chatboxSubmission", CHATBOXFIELD.value);
             
             addMessageToChatbox(CHATBOXFIELD.value, "You");
 
@@ -295,11 +299,7 @@ function addListenersToMenu() {
     CHATBOXFIELD.addEventListener("keypress", function(event) {
         if(event.key === "Enter" && document.activeElement === CHATBOXFIELD) {
             if(CHATBOXFIELD.value !== "") {
-                const d = {
-                    type: "CHATBOXSUBMISSION",
-                    message: CHATBOXFIELD.value
-                }
-                ws.send(JSON.stringify(d));
+                socket.emit("chatboxSubmission", CHATBOXFIELD.value);
                 
                 addMessageToChatbox(CHATBOXFIELD.value, "You");
     

@@ -1,3 +1,5 @@
+const { Game, Player, Room } = require('./helper.js');
+
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -35,29 +37,36 @@ resultTime = -1;
 rounds = -1;
 roundCounter = 1;
 
-const roomSocketCounts = {};
+const rooms = {};
 io.on('connection', (socket) => {
     console.log("A user has connected!");
 
-    socket.connectedRoom = -1;
+    socket.player = null;
     socket.on('joinRoom', (roomId) => {
         socket.join(roomId);
-        socket.connectedRoom = roomId;
-        if(roomSocketCounts[roomId] === undefined) {
-            roomSocketCounts[roomId] = 1;
+        socket.player = new Player("Player", 0);
+
+        if(rooms[roomId] === undefined) { 
+            rooms[roomId] = new Room(roomId);
         }
-        else {
-            roomSocketCounts[roomId] = roomSocketCounts[roomId] + 1;
-        }
-        console.log("A client has joined room: " + roomId + ". There are now " + roomSocketCounts[roomId] + " clients in the room.");
+        rooms[roomId].addPlayer(socket.player);
+
+        console.log("A client has joined room: " + roomId + ". There are now " + rooms[roomId].size() + " clients in the room.");
     });
 
     socket.on('disconnect', () => {
-        const roomId = socket.connectedRoom;
-        roomSocketCounts[roomId] = roomSocketCounts[roomId] - 1;
-        console.log('A client has disconnected from room: ' + roomId + ". There are now " + roomSocketCounts[roomId] + " clients in the room.");
+        if(socket.player === null) return;
+        const room = rooms[socket.player.getRoomID()];
+        room.removePlayer(socket.player);
+        console.log('A client has disconnected from room: ' + room.getID() + ". There are now " + room.size() + " clients in the room.");
+        if(room.size() === 0) {
+            delete rooms[room.getID()];
+        }
     });
 
+    socket.on('chatboxSubmission', (message) => {
+        socket.broadcast.to(socket.player.getRoomID()).emit('chatboxMessageReceived', { sender: socket.player.name, message: message });
+    });
 });
 /*
 //Below code needs to be changed
