@@ -44,15 +44,19 @@ class Room {
 
     resetPlayerAnswers() { this.players.forEach(p => p.setAnswer("Quarter Pounder with Cheese")); }
 
+    resetPlayerScores() { this.players.forEach(p => p.setScore(0));}
+
     getVoteResponseCounter() { return this.responseCounter; }
     
     resetResponseVoteCounter() {
+        const length = this.players.length;
         this.responseCounter = Array.from({ length }, () => 0);
     }
 
     getScoreChanges() { return this.scoreChanges; }
 
     resetScoreChanges() {
+        const length = this.players.length;
         this.scoreChanges = Array.from({ length }, () => 0);
     }
 
@@ -129,6 +133,8 @@ class Player {
     getScore() { return this.score; }
 
     addScore(amount) { this.score += amount; }
+
+    setScore(amount) { this.score = amount; }
 }
 
 module.exports = { Room, Player };

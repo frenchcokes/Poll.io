@@ -46,42 +46,37 @@ socket.on("updatePlayerButtons", (dataJson) => {
     updatePlayerButtons(dataJson.playerNames, dataJson.playerScores, dataJson.playerIndex);
 });
 
-/*
-ws.onmessage = (event) => {
-    jsonParse = JSON.parse(event.data);
-    switch(jsonParse.type) {
-        case "MENUUPDATE":
-            updateGameMenu(jsonParse);
-            break;
-        case "STARTGAME":
-            startGame(jsonParse);
-            break;
-        case "UPDATE":
-            updatePlayerButtons(jsonParse.playerNames, jsonParse.playerScores, jsonParse.playerIndex);
-            break;
-        case "LOOP":
-            setRoundCountdown(jsonParse.roundTime)
-            break;
-        case "STARTVOTE":
-            startVoteUI(jsonParse.playerNames, jsonParse.playerAnswers);
-            break;
-        case "VOTERESULTS":
-            startResultsUI(jsonParse.playerNames, jsonParse.playerAnswers, jsonParse.playerVotes, jsonParse.scoreChanges);
-            break;
-        case "FINALRESULTS":
-            startFinalResultsUI(jsonParse.playerNames, jsonParse.playerScores);
-            break;
-        case "CHATBOXMESSAGERECEIVED":
-            addMessageToChatbox(jsonParse.message, jsonParse.sender);
-            break;
-        case "BACKTOMENU":
-            backToMenu();
-            break;
-    }
-}
-*/
+socket.on("startGame", (dataJson) => {
+    startGame(dataJson.prompt, dataJson.round);
+});
+
+socket.on("backToMenu", () => {
+    backToMenu();
+});
+
+socket.on("voteResults", (dataJson) => {
+    startResultsUI(dataJson.playerNames, dataJson.playerAnswers, dataJson.playerVotes, dataJson.scoreChanges);
+});
+
+socket.on("loop", (dataJson) => {
+    setRoundCountdown(dataJson.time);
+});
+
+socket.on("startVotes", (dataJson) => {
+    startVoteUI(dataJson.playerNames, dataJson.playerAnswers);
+});
+
+socket.on("finalResults", (dataJson) => {
+    startFinalResultsUI(dataJson.playerNames, dataJson.playerScores);
+});
+
+socket.on("menuUpdate", (dataJson) => {
+    updateGameMenu(dataJson);
+});
 
 function backToMenu() {
+    ROUNDDISPLAYTEXT.innerHTML = "Round X";
+    ROUNDTIMERTEXT.innerHTML = "";
     GAMEMENUCONTAINER.style.display = "block";
     RESULTSCONTAINER.style.display = "none";
 }
@@ -133,7 +128,7 @@ function addMessageToChatbox(messageText, sender) {
     CHATBOXMESSAGESCONTAINER.appendChild(message);
 }
 
-function startGame(jsonParse) {
+function startGame(prompt, round) {
     hideAllGameElements();
 
     var playerBoxes = document.getElementsByClassName("player-box");
@@ -144,13 +139,14 @@ function startGame(jsonParse) {
         }
     }
 
-    ROUNDDISPLAYTEXT.innerHTML = "Round " + jsonParse.round;
+    MAINGAMEPLAY.style.display = "block";
+    ROUNDDISPLAYTEXT.innerHTML = "Round " + (round + 1);
     GAMEMENUCONTAINER.style.display = "none";
     PROMPTTEXT.style.display = "flex";
     VOTESCONTAINER.style.display = "flex";
     MESSAGECONTAINER.style.display = "flex";
 
-    PROMPTTEXT.innerHTML = jsonParse.prompt;
+    PROMPTTEXT.innerHTML = prompt;
     MESSAGEFIELD.style.visibility = "visible";
     MESSAGESEND.style.visibility = "visible";
 }
@@ -209,10 +205,8 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
 
     function attemptToSend() {
         if(MESSAGEFIELD.value !== "") {
-            const data = {
-                type: "PROMPTSUBMISSION",
-                prompt: MESSAGEFIELD.value
-            }
+            socket.emit("promptSubmission", MESSAGEFIELD.value);
+
             MESSAGEFIELD.value = "";
             MESSAGEFIELD.style.visibility = "hidden";
             MESSAGESEND.style.visibility = "hidden";
@@ -242,8 +236,7 @@ function addListenersToMenu() {
     var inputFieldsLength = inputFields.length;
     for(let i = 0; i < inputFieldsLength; i++) {
         inputFields[i].addEventListener("change", function() {
-            const data = {
-                type: "MENUUPDATE",
+            socket.io.emit("menuUpdate", {
                 promptTime: PROMPTTIME.value,
                 voteTime: VOTETIME.value,
                 resultTime: RESULTTIME.value,
@@ -251,14 +244,12 @@ function addListenersToMenu() {
                 isPack1: PACK1.checked,
                 isPack2: PACK2.checked,
                 isPack3: PACK3.checked
-            }
-            ws.send(JSON.stringify(data));
+            });
         });
     }
 
     GAMESTARTBUTTON.addEventListener("click", function() {
-        const data = {
-            type: "STARTGAME",
+        socket.emit("startGame", {
             promptTime: PROMPTTIME.value,
             voteTime: VOTETIME.value,
             resultTime: RESULTTIME.value,
@@ -266,17 +257,12 @@ function addListenersToMenu() {
             isPack1: PACK1.checked,
             isPack2: PACK2.checked,
             isPack3: PACK3.checked
-        }
-        ws.send(JSON.stringify(data));
+        });
     })
 
     VOTESEND.addEventListener("click", function() {
         if(selectedVoteButton !== -1) {
-            const d = {
-                type: "VOTESUBMISSION",
-                voteIndex: selectedVoteButton
-            }
-            ws.send(JSON.stringify(d));
+            socket.emit("voteSubmission", selectedVoteButton);
             
             VOTEROWCONTAINERS[0].innerHTML = "";
             VOTEROWCONTAINERS[1].innerHTML = "";
@@ -307,10 +293,7 @@ function addListenersToMenu() {
     });
 
     RESULTSNEXTGAMEBUTTON.addEventListener("click", function() {
-        const d = {
-            type: "BACKTOMENU"
-        }
-        ws.send(JSON.stringify(d));
+        socket.emit("backToMenu");
     })
 }
 addListenersToMenu();

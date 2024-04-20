@@ -58,8 +58,8 @@ io.on('connection', (socket) => {
         room.isPack2 = data.isPack2;
         room.isPack3 = data.isPack3;
 
-        startCountdown(room.promptTime, "PROMPT", game);
-        console.log("Started game for room: " + roomID);
+        startCountdown(room.getPromptTime(), "PROMPT", room);
+        console.log("Started game for room: " + room.getID());
 
         var selectedPrompt = generateRandomPrompt(room);
 
@@ -87,7 +87,14 @@ io.on('connection', (socket) => {
     });
 
     socket.on('backToMenu', () => {
+        rooms[socket.player.getRoomID()].resetPlayerScores();
+        rooms[socket.player.getRoomID()].resetPlayerAnswers();
+        updatePlayerButtons(socket.player.getRoomID());
         io.to(socket.player.getRoomID()).emit('backToMenu');
+    });
+
+    socket.on('menuUpdate', (data) => {
+        io.to(socket.player.getRoomID()).emit('menuUpdate', data);
     });
 });
 
@@ -120,15 +127,15 @@ function generateRandomPrompt(game) {
 }
 
 function startResults(game) {
-    game.clearInterval();
-    startCountdown(resultTime, "RESULT", game);
+    game.clearTimeInterval();
+    startCountdown(game.getResultTime(), "RESULT", game);
 
     game.resetScoreChanges();
 
     const players = game.getPlayers();
     for (var i = 0; i < players.length; i++) {
         players[i].addScore(game.getVoteResponseCounter()[i] * 1000);
-        game.addscoreChangesToIndex(i, game.getVoteResponseCounter()[i] * 1000);
+        game.addScoreChangeToIndex(i, game.getVoteResponseCounter()[i] * 1000);
     }
     updatePlayerButtons(game.getID());
 
@@ -136,8 +143,8 @@ function startResults(game) {
 }
 
 function startVotes(game) {
-    game.clearInterval();
-    startCountdown(voteTime, "VOTE", game);
+    game.clearTimeInterval();
+    startCountdown(game.getVoteTime(), "VOTE", game);
 
     game.resetResponseVoteCounter();
 
@@ -149,7 +156,7 @@ function countdown(type, game) {
 
     game.progressTime();
     if(game.getTime() < 0) {
-        game.clearInterval();
+        game.clearTimeInterval();
         switch(type) {
             case "PROMPT":
                 
@@ -161,7 +168,7 @@ function countdown(type, game) {
                 console.log("Vote countdown done!");
                 break;
             case "RESULT":
-                if(game.getCurrentRound() < game.getRounds()) {
+                if(game.getCurrentRound() < (game.getRounds() - 1)) {
                     nextRound(game);
                 }
                 else {
@@ -181,18 +188,18 @@ function resultsScreen(game) {
 
 function startCountdown(length, type, game) {
     console.log("Started: " + type + " countdown.")
-    game.clearInterval();
+    game.clearTimeInterval();
     game.setTime(length);
     var intervalID  = setInterval(() => {
         countdown(type, game);
     }, 1000);
-    game.setInterval(intervalID);
+    game.setIntervalID(intervalID);
     
 }
 
 function nextRound(game) {
-    game.clearInterval();
-    startCountdown(promptTime, "PROMPT");
+    game.clearTimeInterval();
+    startCountdown(game.getPromptTime(), "PROMPT", game);
 
     game.nextRound();
     var selectedPrompt = generateRandomPrompt(game);
