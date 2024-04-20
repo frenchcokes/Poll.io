@@ -47,7 +47,7 @@ socket.on("updatePlayerButtons", (dataJson) => {
 });
 
 socket.on("startGame", (dataJson) => {
-    startGame(dataJson.prompt, dataJson.round);
+    startGame(dataJson.prompt, dataJson.round, dataJson.maxRounds);
 });
 
 socket.on("backToMenu", () => {
@@ -128,7 +128,7 @@ function addMessageToChatbox(messageText, sender) {
     CHATBOXMESSAGESCONTAINER.appendChild(message);
 }
 
-function startGame(prompt, round) {
+function startGame(prompt, round, maxRounds) {
     hideAllGameElements();
 
     var playerBoxes = document.getElementsByClassName("player-box");
@@ -140,7 +140,7 @@ function startGame(prompt, round) {
     }
 
     MAINGAMEPLAY.style.display = "block";
-    ROUNDDISPLAYTEXT.innerHTML = "Round " + (round + 1);
+    ROUNDDISPLAYTEXT.innerHTML = "Round " + (round + 1) + "/" + maxRounds;
     GAMEMENUCONTAINER.style.display = "none";
     PROMPTTEXT.style.display = "flex";
     VOTESCONTAINER.style.display = "flex";

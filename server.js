@@ -63,7 +63,7 @@ io.on('connection', (socket) => {
 
         var selectedPrompt = generateRandomPrompt(room);
 
-        io.to(socket.player.getRoomID()).emit('startGame', { prompt: selectedPrompt, round: room.currentRound });
+        io.to(socket.player.getRoomID()).emit('startGame', { prompt: selectedPrompt, round: room.getCurrentRound(), maxRounds: room.getRounds()});
     });
 
     socket.on('promptSubmission', (prompt) => {
@@ -203,7 +203,7 @@ function nextRound(game) {
 
     game.nextRound();
     var selectedPrompt = generateRandomPrompt(game);
-    io.to(game.getID()).emit('startGame', { prompt: selectedPrompt, round: game.currentRound });
+    io.to(game.getID()).emit('startGame', { prompt: selectedPrompt, round: game.getCurrentRound(), maxRounds: game.getRounds() });
 }
 
 
