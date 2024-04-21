@@ -159,7 +159,6 @@ function countdown(type, game) {
         game.clearTimeInterval();
         switch(type) {
             case "PROMPT":
-                
                 startVotes(game);
                 console.log("Prompt countdown done!");
                 break;
