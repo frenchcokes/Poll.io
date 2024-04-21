@@ -176,6 +176,15 @@
     display: none;
 }
 
+.room-join-container {
+    margin-top: 10px;
+    background-color: beige;
+    width: 775px;
+    height: 575px;
+
+    display: none;
+}
+
 .results-heading {
     font-size: 45px;
 }
