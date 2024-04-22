@@ -164,6 +164,8 @@
     background-color: green;
     width: 775px;
     height: 575px;
+  
+    display: none;
 }
 
 .results-container {
@@ -178,11 +180,30 @@
 
 .room-join-container {
     margin-top: 10px;
-    background-color: beige;
+    background-color: pink;
     width: 775px;
     height: 575px;
+  
+    test-align: center;
+}
 
-    display: none;
+.name-input {
+    width: 150px;
+    height: 30px;
+    font-size: 25px;
+}
+
+.room-input {
+    width: 150px;
+    height: 30px;
+    font-size: 25px;
+}
+
+.join-room-send {
+    width: 175px;
+    height: 75px;
+  
+    font-size: 30px;
 }
 
 .results-heading {

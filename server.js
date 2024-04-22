@@ -20,14 +20,18 @@ io.on('connection', (socket) => {
     console.log("A user has connected!");
 
     socket.player = null;
-    socket.on('joinRoom', (roomID) => {
+    socket.on('joinRoom', (data) => {
+
+        const roomID = data.roomID;
         socket.join(roomID);
-        socket.player = new Player("Player", 0);
+        socket.player = new Player(data.playerName, 0);
 
         if(rooms[roomID] === undefined) { 
             rooms[roomID] = new Room(roomID);
         }
         rooms[roomID].addPlayer(socket.player);
+
+        socket.emit('sendToMenu', () => {});
         updatePlayerButtons(roomID);
 
         console.log("A client has joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");

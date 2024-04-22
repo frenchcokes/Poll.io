@@ -1,6 +1,5 @@
 
 const socket = io('http://localhost:3000');
-socket.emit("joinRoom", "room1");
 
 const PLAYERSCONTAINER = document.querySelector('.player-container');
 const ROUNDTIMERTEXT = document.querySelector('.round-timer')
@@ -38,12 +37,22 @@ const GAMEMENUCONTAINER = document.getElementById("GAMEMENUCONTAINER");
 
 const GAMESTARTBUTTON = document.getElementById("GAMESTARTBUTTON");
 
+const ROOMJOINCONTAINER = document.getElementById("ROOMJOINCONTAINER");
+const ROOMJOINNAMEFIELD = document.getElementById("ROOMJOINNAMEFIELD");
+const ROOMJOINCODEFIELD = document.getElementById("ROOMJOINCODEFIELD");
+const ROOMJOINBUTTON = document.getElementById("ROOMJOINBUTTON");
+
 socket.on("chatboxMessageReceived", (dataJson) => {
     addMessageToChatbox(dataJson.message, dataJson.sender);
 });
 
 socket.on("updatePlayerButtons", (dataJson) => {
     updatePlayerButtons(dataJson.playerNames, dataJson.playerScores, dataJson.playerIndex);
+});
+
+socket.on("sendToMenu", () => {
+    ROOMJOINCONTAINER.style.display = "none";
+    GAMEMENUCONTAINER.style.display = "block";
 });
 
 socket.on("startGame", (dataJson) => {
@@ -294,7 +303,18 @@ function addListenersToMenu() {
 
     RESULTSNEXTGAMEBUTTON.addEventListener("click", function() {
         socket.emit("backToMenu");
-    })
+    });
+
+    ROOMJOINBUTTON.addEventListener("click", function() {
+        if(ROOMJOINNAMEFIELD.value !== "" && ROOMJOINCODEFIELD.value !== "") {
+            socket.emit("joinRoom", {
+                playerName: ROOMJOINNAMEFIELD.value,
+                roomID: ROOMJOINCODEFIELD.value
+            });
+            ROOMJOINNAMEFIELD.value = "";
+            ROOMJOINCODEFIELD.value = "";
+        }
+    });
 }
 addListenersToMenu();
 
