@@ -41,6 +41,7 @@ const ROOMJOINCONTAINER = document.getElementById("ROOMJOINCONTAINER");
 const ROOMJOINNAMEFIELD = document.getElementById("ROOMJOINNAMEFIELD");
 const ROOMJOINCODEFIELD = document.getElementById("ROOMJOINCODEFIELD");
 const ROOMJOINBUTTON = document.getElementById("ROOMJOINBUTTON");
+const ROOMCREATEBUTTON = document.getElementById("ROOMCREATEBUTTON");
 
 socket.on("chatboxMessageReceived", (dataJson) => {
     addMessageToChatbox(dataJson.message, dataJson.sender);
@@ -311,6 +312,14 @@ function addListenersToMenu() {
                 playerName: ROOMJOINNAMEFIELD.value,
                 roomID: ROOMJOINCODEFIELD.value
             });
+            ROOMJOINNAMEFIELD.value = "";
+            ROOMJOINCODEFIELD.value = "";
+        }
+    });
+
+    ROOMCREATEBUTTON.addEventListener("click", function() {
+        if(ROOMJOINNAMEFIELD.value !== "") {
+            socket.emit("createRoom", ROOMJOINNAMEFIELD.value);
             ROOMJOINNAMEFIELD.value = "";
             ROOMJOINCODEFIELD.value = "";
         }

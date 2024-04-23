@@ -21,20 +21,18 @@ io.on('connection', (socket) => {
 
     socket.player = null;
     socket.on('joinRoom', (data) => {
+        if(rooms[data.roomID] !== undefined) { 
+            const roomID = data.roomID;
+            socket.join(roomID);
+            socket.player = new Player(data.playerName, 0);
 
-        const roomID = data.roomID;
-        socket.join(roomID);
-        socket.player = new Player(data.playerName, 0);
+            rooms[roomID].addPlayer(socket.player);
 
-        if(rooms[roomID] === undefined) { 
-            rooms[roomID] = new Room(roomID);
+            socket.emit('sendToMenu', () => {});
+            updatePlayerButtons(roomID);
+
+            console.log("A client has joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
         }
-        rooms[roomID].addPlayer(socket.player);
-
-        socket.emit('sendToMenu', () => {});
-        updatePlayerButtons(roomID);
-
-        console.log("A client has joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
     });
 
     socket.on('disconnect', () => {
@@ -99,6 +97,38 @@ io.on('connection', (socket) => {
 
     socket.on('menuUpdate', (data) => {
         io.to(socket.player.getRoomID()).emit('menuUpdate', data);
+    });
+
+    socket.on("createRoom", (playerName) => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const roomCodeLength = 5;
+
+        function generateRoomCode() {
+            let roomCode = '';
+            for (let i = 0; i < roomCodeLength; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                roomCode += characters[randomIndex];
+            }
+            return roomCode;
+        }
+        
+        const roomCode = generateRoomCode();
+        while(roomCode in rooms) {
+            roomCode = generateRoomCode();
+            if((roomCode in rooms) === false) { break; }
+        }
+
+        const roomID = roomCode;
+        socket.join(roomID);
+        socket.player = new Player(playerName, 0);
+
+        rooms[roomID] = new Room(roomID);
+        rooms[roomID].addPlayer(socket.player);
+
+        socket.emit('sendToMenu', () => {});
+        updatePlayerButtons(roomID);
+
+        console.log("A client has created and joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
     });
 });
 
