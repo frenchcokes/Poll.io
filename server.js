@@ -17,8 +17,6 @@ app.get('/', async(req, res) => {
 
 const rooms = {};
 io.on('connection', (socket) => {
-    console.log("A user has connected!");
-
     socket.player = null;
     socket.on('joinRoom', (data) => {
         if(rooms[data.roomID] !== undefined) { 
@@ -50,22 +48,24 @@ io.on('connection', (socket) => {
     });
 
     socket.on('startGame', (data) => {
-        const room = rooms[socket.player.getRoomID()];
-        room.promptTime = data.promptTime;
-        room.voteTime = data.voteTime;
-        room.resultTime = data.resultTime;
-        room.rounds = data.rounds;
+        if(data.isPack1 === true || data.isPack2 === true || data.isPack3 === true) {
+            const room = rooms[socket.player.getRoomID()];
+            room.promptTime = data.promptTime;
+            room.voteTime = data.voteTime;
+            room.resultTime = data.resultTime;
+            room.rounds = data.rounds;
 
-        room.isPack1 = data.isPack1;
-        room.isPack2 = data.isPack2;
-        room.isPack3 = data.isPack3;
+            room.isPack1 = data.isPack1;
+            room.isPack2 = data.isPack2;
+            room.isPack3 = data.isPack3;
 
-        startCountdown(room.getPromptTime(), "PROMPT", room);
-        console.log("Started game for room: " + room.getID());
+            startCountdown(room.getPromptTime(), "PROMPT", room);
+            console.log("Started game for room: " + room.getID());
 
-        var selectedPrompt = generateRandomPrompt(room);
+            var selectedPrompt = generateRandomPrompt(room);
 
-        io.to(socket.player.getRoomID()).emit('startGame', { prompt: selectedPrompt, round: room.getCurrentRound(), maxRounds: room.getRounds()});
+            io.to(socket.player.getRoomID()).emit('startGame', { prompt: selectedPrompt, round: room.getCurrentRound(), maxRounds: room.getRounds()});
+        }
     });
 
     socket.on('promptSubmission', (prompt) => {
@@ -101,7 +101,7 @@ io.on('connection', (socket) => {
 
     socket.on("createRoom", (playerName) => {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const roomCodeLength = 5;
+        const roomCodeLength = 7;
 
         function generateRoomCode() {
             let roomCode = '';
@@ -144,6 +144,9 @@ function updatePlayerButtons(roomID) {
 
 function generateRandomPrompt(game) {
     possiblePrompts = [];
+    pack1Prompts = [];
+    pack2Prompts = [];
+    pack3Prompts = [];
     if(game.isPack1 === true) {
         possiblePrompts = possiblePrompts.concat(pack1Prompts);
     }
