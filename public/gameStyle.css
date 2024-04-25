@@ -302,14 +302,14 @@
     display: flex;
     flex-direction: column;
     overflow: auto;
-    height: 590px;
+    height: 560px;
 }
 
 .chat-message {
   writing-mode: horizontal-rl;
   text-orientation: mixed;
   font-size: 15px;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
   word-wrap: break-word;
   margin-left: 3px;
 }

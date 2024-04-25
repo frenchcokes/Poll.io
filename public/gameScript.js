@@ -140,6 +140,7 @@ function addMessageToChatbox(messageText, sender) {
     message.textContent = sender + ": " + messageText;
 
     CHATBOXMESSAGESCONTAINER.appendChild(message);
+    CHATBOXMESSAGESCONTAINER.scrollTop = CHATBOXMESSAGESCONTAINER.scrollHeight;
 }
 
 function startGame(prompt, round, maxRounds) {

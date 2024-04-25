@@ -19,18 +19,19 @@ const rooms = {};
 io.on('connection', (socket) => {
     socket.player = null;
     socket.on('joinRoom', (data) => {
-        if(rooms[data.roomID] !== undefined) { 
-            const roomID = data.roomID;
-            socket.join(roomID);
-            socket.player = new Player(data.playerName, 0);
+        if(rooms[data.roomID] === undefined) { return; }
 
-            rooms[roomID].addPlayer(socket.player);
+        const roomID = data.roomID;
+        socket.join(roomID);
+        socket.player = new Player(data.playerName, 0);
 
-            socket.emit('sendToMenu', roomID);
-            updatePlayerButtons(roomID);
+        rooms[roomID].addPlayer(socket.player);
 
-            console.log("A client has joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
-        }
+        socket.emit('sendToMenu', roomID);
+        updatePlayerButtons(roomID);
+
+        io.to(roomID).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has joined!" });
+        console.log("A client has joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
     });
 
     socket.on('disconnect', () => {
@@ -44,28 +45,36 @@ io.on('connection', (socket) => {
     });
 
     socket.on('chatboxSubmission', (message) => {
+        if(socket.player === null) return;
         socket.broadcast.to(socket.player.getRoomID()).emit('chatboxMessageReceived', { sender: socket.player.name, message: message });
     });
 
     socket.on('startGame', (data) => {
-        if(data.isPack1 === true || data.isPack2 === true || data.isPack3 === true) {
-            const room = rooms[socket.player.getRoomID()];
-            room.promptTime = data.promptTime;
-            room.voteTime = data.voteTime;
-            room.resultTime = data.resultTime;
-            room.rounds = data.rounds;
-
-            room.isPack1 = data.isPack1;
-            room.isPack2 = data.isPack2;
-            room.isPack3 = data.isPack3;
-
-            startCountdown(room.getPromptTime(), "PROMPT", room);
-            console.log("Started game for room: " + room.getID());
-
-            var selectedPrompt = generateRandomPrompt(room);
-
-            io.to(socket.player.getRoomID()).emit('startGame', { prompt: selectedPrompt, round: room.getCurrentRound(), maxRounds: room.getRounds()});
+        const room = rooms[socket.player.getRoomID()];
+        if(room.size() < 3) {
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Need at least 3 players to start."});
+            return;
         }
+        if(data.isPack1 === false && data.isPack2 === false && data.isPack3 === false) {
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Please select at least one pack."});
+            return;
+        }
+        room.promptTime = data.promptTime;
+        room.voteTime = data.voteTime;
+        room.resultTime = data.resultTime;
+        room.rounds = data.rounds;
+
+        room.isPack1 = data.isPack1;
+        room.isPack2 = data.isPack2;
+        room.isPack3 = data.isPack3;
+
+        startCountdown(room.getPromptTime(), "PROMPT", room);
+        console.log("Started game for room: " + room.getID());
+
+        var selectedPrompt = generateRandomPrompt(room);
+
+        io.to(socket.player.getRoomID()).emit('chatboxMessageReceived', { sender: "Server", message: "Started Game!"});
+        io.to(socket.player.getRoomID()).emit('startGame', { prompt: selectedPrompt, round: room.getCurrentRound(), maxRounds: room.getRounds()});
     });
 
     socket.on('promptSubmission', (prompt) => {
@@ -101,7 +110,7 @@ io.on('connection', (socket) => {
 
     socket.on("createRoom", (playerName) => {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const roomCodeLength = 7;
+        const roomCodeLength = 6;
 
         function generateRoomCode() {
             let roomCode = '';
@@ -128,6 +137,7 @@ io.on('connection', (socket) => {
         socket.emit('sendToMenu', roomID);
         updatePlayerButtons(roomID);
 
+        socket.emit("chatboxMessageReceived", { sender: "Server", message: "Room created! Room code: " + roomID })
         console.log("A client has created and joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
     });
 });
