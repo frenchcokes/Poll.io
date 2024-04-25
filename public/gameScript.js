@@ -33,6 +33,8 @@ const PACK1 = document.getElementById("PACK1");
 const PACK2 = document.getElementById("PACK2");
 const PACK3 = document.getElementById("PACK3");
 
+const ROOMCODE = document.getElementById("ROOMCODE");
+
 const GAMEMENUCONTAINER = document.getElementById("GAMEMENUCONTAINER");
 
 const GAMESTARTBUTTON = document.getElementById("GAMESTARTBUTTON");
@@ -51,9 +53,11 @@ socket.on("updatePlayerButtons", (dataJson) => {
     updatePlayerButtons(dataJson.playerNames, dataJson.playerScores, dataJson.playerIndex);
 });
 
-socket.on("sendToMenu", () => {
+socket.on("sendToMenu", (roomID) => {
     ROOMJOINCONTAINER.style.display = "none";
     GAMEMENUCONTAINER.style.display = "block";
+
+    ROOMCODE.value = roomID;
 });
 
 socket.on("startGame", (dataJson) => {
@@ -73,7 +77,7 @@ socket.on("loop", (dataJson) => {
 });
 
 socket.on("startVotes", (dataJson) => {
-    startVoteUI(dataJson.playerNames, dataJson.playerAnswers);
+    startVoteUI(dataJson.playerNames, dataJson.playerAnswers, dataJson.excludeIndex);
 });
 
 socket.on("finalResults", (dataJson) => {
@@ -328,7 +332,7 @@ function addListenersToMenu() {
 addListenersToMenu();
 
 var selectedVoteButton = -1;
-function startVoteUI(playerNames, playerAnswers) {
+function startVoteUI(playerNames, playerAnswers, excludeIndex) {
     hideAllGameElements();
 
     //SHOW PROMPT
@@ -343,7 +347,9 @@ function startVoteUI(playerNames, playerAnswers) {
     VOTEROWCONTAINERS[1].innerHTML = "";
     buttons = [];
     for (var i = 0; i < numberOfButtons; i++) {
+        if(i !== excludeIndex) {
             buttons.push(createVoteButton(i, " ", playerAnswers[i]));
+        }
     }
 
     displayToRows(buttons, true);

@@ -168,6 +168,12 @@
     display: none;
 }
 
+.room-code {
+    text-align: center;
+    font-size: 40px;
+    width: 200px;
+}
+
 .results-container {
     margin-top: 10px;
     background-color: pink;

@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
 
             rooms[roomID].addPlayer(socket.player);
 
-            socket.emit('sendToMenu', () => {});
+            socket.emit('sendToMenu', roomID);
             updatePlayerButtons(roomID);
 
             console.log("A client has joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
@@ -125,7 +125,7 @@ io.on('connection', (socket) => {
         rooms[roomID] = new Room(roomID);
         rooms[roomID].addPlayer(socket.player);
 
-        socket.emit('sendToMenu', () => {});
+        socket.emit('sendToMenu', roomID);
         updatePlayerButtons(roomID);
 
         console.log("A client has created and joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
@@ -133,7 +133,7 @@ io.on('connection', (socket) => {
 });
 
 function updatePlayerButtons(roomID) {
-    const socketsInRoom = io.sockets.adapter.rooms.get(roomID);
+    const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(roomID));
     var counter = 0;
     for (const socketID of socketsInRoom) {
         const socket = io.sockets.sockets.get(socketID);
@@ -182,7 +182,13 @@ function startVotes(game) {
 
     game.resetResponseVoteCounter();
 
-    io.to(game.getID()).emit('startVotes', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers() });
+    const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(game.getID()));
+    var counter = 0;
+    socketsInRoom.forEach((socketID) => {
+        const socket = io.sockets.sockets.get(socketID);
+        socket.emit('startVotes', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), excludeIndex: counter });
+        counter = counter + 1;
+    });
 }
 
 function countdown(type, game) {
