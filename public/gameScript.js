@@ -3,6 +3,7 @@ const socket = io('http://localhost:3000');
 
 const PLAYERSCONTAINER = document.querySelector('.player-container');
 const ROUNDTIMERTEXT = document.querySelector('.round-timer')
+const TITLETEXT = document.getElementById("TITLETEXT");
 const ROUNDDISPLAYTEXT = document.querySelector('.round-display');
 
 const RESULTSCONTAINER = document.querySelector('.results-container');
@@ -56,7 +57,7 @@ socket.on("updatePlayerButtons", (dataJson) => {
 socket.on("sendToMenu", (roomID) => {
     ROOMJOINCONTAINER.style.display = "none";
     GAMEMENUCONTAINER.style.display = "block";
-
+    TITLETEXT.innerHTML = "Menu";
     ROOMCODE.value = roomID;
 });
 
@@ -88,11 +89,16 @@ socket.on("menuUpdate", (dataJson) => {
     updateGameMenu(dataJson);
 });
 
+socket.on("emptyChatbox", () => {
+    emptyChatbox();
+});
+
 function backToMenu() {
-    ROUNDDISPLAYTEXT.innerHTML = "Round X";
+    ROUNDDISPLAYTEXT.innerHTML = "";
     ROUNDTIMERTEXT.innerHTML = "";
     GAMEMENUCONTAINER.style.display = "block";
     RESULTSCONTAINER.style.display = "none";
+    TITLETEXT.innerHTML = "Menu";
 }
 
 function startFinalResultsUI(playerNames, playerScores) {
@@ -132,6 +138,7 @@ function startFinalResultsUI(playerNames, playerScores) {
         RESULTSTEXT.appendChild(row);
         RESULTSTEXT.appendChild(brElem);
     }
+    TITLETEXT.innerHTML = "Results";
 }
 
 function addMessageToChatbox(messageText, sender) {
@@ -164,6 +171,8 @@ function startGame(prompt, round, maxRounds) {
     PROMPTTEXT.innerHTML = prompt;
     MESSAGEFIELD.style.visibility = "visible";
     MESSAGESEND.style.visibility = "visible";
+
+    TITLETEXT.innerHTML = "Write a Prompt!";
 }
 
 function setRoundCountdown(roundTime) {
@@ -376,7 +385,7 @@ function startVoteUI(playerNames, playerAnswers, excludeIndex) {
         })(divs[i]);
     }
 
-
+    TITLETEXT.innerHTML = "Vote!";
 }
 
 function startResultsUI(playerNames, playerAnswers, votes, scoreChanges) {
@@ -392,6 +401,8 @@ function startResultsUI(playerNames, playerAnswers, votes, scoreChanges) {
     displayToRows(voteButtons, false);
 
     displayScoreChanges(scoreChanges);
+
+    TITLETEXT.innerHTML = "Results!";
 }
 
 //HELPER FUNCTIONS
@@ -457,4 +468,8 @@ function displayToRows(buttons, isRandom) {
         }
     }
 
+}
+
+function emptyChatbox() {
+    CHATBOXMESSAGESCONTAINER.innerHTML = "";
 }

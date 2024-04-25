@@ -19,8 +19,14 @@ const rooms = {};
 io.on('connection', (socket) => {
     socket.player = null;
     socket.on('joinRoom', (data) => {
-        if(rooms[data.roomID] === undefined) { return; }
-
+        if(rooms[data.roomID] === undefined) { 
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Room does not exist."})
+            return; 
+        }
+        if(data.playerName.length > 15) { 
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
+            return; 
+        }
         const roomID = data.roomID;
         socket.join(roomID);
         socket.player = new Player(data.playerName, 0);
@@ -50,6 +56,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('startGame', (data) => {
+        if(socket.player === null) return;
         const room = rooms[socket.player.getRoomID()];
         if(room.size() < 3) {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Need at least 3 players to start."});
@@ -78,6 +85,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('promptSubmission', (prompt) => {
+        if(socket.player === null) return;
         console.log("Received prompt: " + prompt)
         socket.player.answer = prompt;
         const isAllResponses = rooms[socket.player.getRoomID()].responseAdded();
@@ -88,7 +96,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('voteSubmission', (voteIndex) => {
-        console.log("Received vote index: " + voteIndex);
+        if(socket.player === null) return;
         rooms[socket.player.getRoomID()].addVoteToCounterIndex(voteIndex);
         const isAllResponses = rooms[socket.player.getRoomID()].responseAdded();
 
@@ -98,6 +106,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('backToMenu', () => {
+        if(socket.player === null) return;
         rooms[socket.player.getRoomID()].resetPlayerScores();
         rooms[socket.player.getRoomID()].resetPlayerAnswers();
         updatePlayerButtons(socket.player.getRoomID());
@@ -105,10 +114,16 @@ io.on('connection', (socket) => {
     });
 
     socket.on('menuUpdate', (data) => {
+        if(socket.player === null) return;
         io.to(socket.player.getRoomID()).emit('menuUpdate', data);
     });
 
     socket.on("createRoom", (playerName) => {
+        if(playerName.length > 15) { 
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
+            return; 
+        }
+
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const roomCodeLength = 6;
 
@@ -212,11 +227,9 @@ function countdown(type, game) {
         switch(type) {
             case "PROMPT":
                 startVotes(game);
-                console.log("Prompt countdown done!");
                 break;
             case "VOTE":
                 startResults(game);
-                console.log("Vote countdown done!");
                 break;
             case "RESULT":
                 if(game.getCurrentRound() < (game.getRounds() - 1)) {
@@ -225,7 +238,6 @@ function countdown(type, game) {
                 else {
                     resultsScreen(game);
                 }
-                console.log("Result countdown done!");
                 break;
         }
     }
