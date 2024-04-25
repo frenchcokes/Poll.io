@@ -205,10 +205,9 @@ function startVotes(game) {
 }
 
 function countdown(type, game) {
-    io.to(game.getID()).emit('loop', { time: game.getTime() });
 
     game.progressTime();
-    if(game.getTime() < 0) {
+    if(game.getTime() <= 0) {
         game.clearTimeInterval();
         switch(type) {
             case "PROMPT":
@@ -230,6 +229,7 @@ function countdown(type, game) {
                 break;
         }
     }
+    io.to(game.getID()).emit('loop', { time: game.getTime() });
 }
 
 
@@ -242,6 +242,7 @@ function startCountdown(length, type, game) {
     console.log("Started: " + type + " countdown.")
     game.clearTimeInterval();
     game.setTime(length);
+    io.to(game.getID()).emit('loop', { time: game.getTime() });
     var intervalID  = setInterval(() => {
         countdown(type, game);
     }, 1000);
