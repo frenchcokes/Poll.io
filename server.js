@@ -123,7 +123,10 @@ io.on('connection', (socket) => {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
             return; 
         }
-
+        if(Object.keys(rooms).length() >= 50) { 
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Server at capacity! Try again later."}); 
+            return; 
+        }
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const roomCodeLength = 6;
 
