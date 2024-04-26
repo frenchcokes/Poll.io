@@ -110,6 +110,12 @@ io.on('connection', (socket) => {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Prompt must be less than 20 characters."});
             return; 
         }
+        if((rooms[socket.player.getRoomID()].getPlayerAnswers().includes(prompt)) === true) {
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "That prompt was already submitted."});
+            return;
+        }
+
+        socket.emit('successfulPromptSubmission');
         socket.player.answer = prompt;
         const isAllResponses = rooms[socket.player.getRoomID()].responseAdded();
 
@@ -329,7 +335,7 @@ function nextRound(game) {
 }
 
 
-server.listen(3000, () => {
+server.listen(3000, '0.0.0.0', () => {
     console.log('Server started on http://localhost:3000');
 });
 

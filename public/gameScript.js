@@ -13,6 +13,7 @@ const TITLETEXT = document.getElementById("TITLETEXT");
 const ROUNDTIMERTEXT = document.querySelector('.round-timer')
 
 const RESULTSCONTAINER = document.querySelector('.results-container');
+const FINALRESULTSHEADER = document.querySelector('.results-heading');
 const RESULTSTEXT = document.querySelector('.results');
 const RESULTSNEXTGAMEBUTTON = document.querySelector('.results-next-game');
 
@@ -54,6 +55,11 @@ socket.on("chatboxMessageReceived", (dataJson) => {
 
 socket.on("updatePlayerButtons", (dataJson) => {
     updatePlayerButtons(dataJson.playerNames, dataJson.playerScores, dataJson.playerIndex);
+});
+
+socket.on('successfulPromptSubmission', () => {
+    MESSAGEFIELD.style.visibility = "hidden";
+    MESSAGESEND.style.visibility = "hidden";
 });
 
 socket.on("sendToMenu", (roomID) => {
@@ -104,7 +110,6 @@ function backToMenu() {
 }
 
 function startFinalResultsUI(playerNames, playerScores) {
-    //Implement me!
     var playerBoxes = document.getElementsByClassName("player-box");
     for (var i = 0; i < playerBoxes.length; i++) {
         var toRemove = playerBoxes[i].getElementsByClassName("player-score-change-box")[0];
@@ -135,6 +140,7 @@ function startFinalResultsUI(playerNames, playerScores) {
     for (var i = 0; i < scoreLen; i++) {
         var row = document.createElement("span");
         row.textContent = (i + 1) + ". " + playerNames[i] + " (" + playerScores[i] + ")";
+        row.style.color = "#ffffff";
         var brElem = document.createElement("br");
 
         RESULTSTEXT.appendChild(row);
@@ -237,11 +243,7 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
     function attemptToSend() {
         if(MESSAGEFIELD.value !== "") {
             socket.emit("promptSubmission", MESSAGEFIELD.value);
-
             MESSAGEFIELD.value = "";
-            MESSAGEFIELD.style.visibility = "hidden";
-            MESSAGESEND.style.visibility = "hidden";
-            ws.send(JSON.stringify(data));
         }
     }
 }
@@ -281,6 +283,8 @@ function addColors() {
     ROUNDDISPLAYTEXT.style.color = "#ffffff";
     TITLETEXT.style.color = "#ffffff";
     ROUNDTIMERTEXT.style.color = "#ffffff";
+
+    FINALRESULTSHEADER.style.color = "#ffffff";
 }
 
 function addListenersToMenu() {

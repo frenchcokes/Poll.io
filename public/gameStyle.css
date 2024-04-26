@@ -314,3 +314,26 @@
   word-wrap: break-word;
   margin-left: 3px;
 }
+
+.lower-section {
+  top: 100px;
+  width: 1250px;
+  background-color: #00906d; 
+  margin: 0 auto;
+  position: relative;
+  height: 40vh;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.info-column {
+  width: 400px;
+  height: 250px;
+  background-color: #00d2a7;
+  margin: 20px;
+  text-align: center;
+}
