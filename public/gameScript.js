@@ -1,10 +1,16 @@
 
 const socket = io('http://localhost:3000');
 
+const GAMETITLETEXT = document.querySelector('.title');
+const OUTERCONTAINER = document.querySelector('.outer-container');
+const UPPERBARCONTAINER = document.querySelector('.upper-bar-container');
+const PROMPTCONTAINER = document.querySelector('.prompt-container');
+
 const PLAYERSCONTAINER = document.querySelector('.player-container');
-const ROUNDTIMERTEXT = document.querySelector('.round-timer')
-const TITLETEXT = document.getElementById("TITLETEXT");
+
 const ROUNDDISPLAYTEXT = document.querySelector('.round-display');
+const TITLETEXT = document.getElementById("TITLETEXT");
+const ROUNDTIMERTEXT = document.querySelector('.round-timer')
 
 const RESULTSCONTAINER = document.querySelector('.results-container');
 const RESULTSTEXT = document.querySelector('.results');
@@ -21,30 +27,26 @@ const MESSAGECONTAINER = document.getElementById("FORMSUBMIT");
 const MESSAGEFIELD = document.getElementById("MESSAGE-INPUT");
 const MESSAGESEND = document.getElementById("MESSAGE-SEND");
 
-const CHATBOXMESSAGESCONTAINER = document.getElementById("CHAT-MESSAGES-CONTAINER");
-const CHATBOXFIELD = document.getElementById("CHATBOX-FIELD");
-const CHATBOXSEND = document.getElementById("CHATBOX-SEND");
-
+const GAMEMENUCONTAINER = document.getElementById("GAMEMENUCONTAINER");
 const PROMPTTIME = document.getElementById("PROMPT-TIME");
 const VOTETIME = document.getElementById("VOTE-TIME");
 const RESULTTIME = document.getElementById("RESULT-TIME");
 const ROUNDS = document.getElementById("ROUNDS");
-
 const PACK1 = document.getElementById("PACK1");
 const PACK2 = document.getElementById("PACK2");
 const PACK3 = document.getElementById("PACK3");
-
-const ROOMCODE = document.getElementById("ROOMCODE");
-
-const GAMEMENUCONTAINER = document.getElementById("GAMEMENUCONTAINER");
-
 const GAMESTARTBUTTON = document.getElementById("GAMESTARTBUTTON");
+const ROOMCODE = document.getElementById("ROOMCODE");
 
 const ROOMJOINCONTAINER = document.getElementById("ROOMJOINCONTAINER");
 const ROOMJOINNAMEFIELD = document.getElementById("ROOMJOINNAMEFIELD");
 const ROOMJOINCODEFIELD = document.getElementById("ROOMJOINCODEFIELD");
 const ROOMJOINBUTTON = document.getElementById("ROOMJOINBUTTON");
 const ROOMCREATEBUTTON = document.getElementById("ROOMCREATEBUTTON");
+
+const CHATBOXMESSAGESCONTAINER = document.getElementById("CHAT-MESSAGES-CONTAINER");
+const CHATBOXFIELD = document.getElementById("CHATBOX-FIELD");
+const CHATBOXSEND = document.getElementById("CHATBOX-SEND");
 
 socket.on("chatboxMessageReceived", (dataJson) => {
     addMessageToChatbox(dataJson.message, dataJson.sender);
@@ -202,13 +204,18 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
         const playerTitleDiv = document.createElement('div');
         playerTitleDiv.classList.add('player-title');
         playerTitleDiv.textContent = playerNames[i];
+        playerTitleDiv.style.color = "#ffffff";
 
         const playerScoreDiv = document.createElement('div');
         playerScoreDiv.classList.add('player-score');
         playerScoreDiv.textContent = playerScores[i];
+        playerScoreDiv.style.color = "#ffffff";
         
         if(i == playerIndex) {
-            playerBoxDiv.style.backgroundColor = "red";
+            playerBoxDiv.style.backgroundColor = "#42187e";
+        }
+        else {
+            playerBoxDiv.style.backgroundColor = "#5149d3";
         }
 
         playerBoxDiv.appendChild(playerTitleDiv);
@@ -241,8 +248,6 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
 
 
 function hideAllGameElements() {
-    //Empty Prompt
-    PROMPTTEXT.innerText = "";
 
     //Empty Voting Elements
     VOTEROWCONTAINERS[0].innerHTML = "";
@@ -253,6 +258,29 @@ function hideAllGameElements() {
     MESSAGEFIELD.style.visibility = "hidden";
     MESSAGEFIELD.value = "";
     MESSAGESEND.style.visibility = "hidden";
+}
+main();
+function main() {
+    addListenersToMenu();
+    addColors();
+}
+
+function addColors() {
+    GAMETITLETEXT.style.color = "#ffffff";
+    OUTERCONTAINER.style.backgroundColor = "#00906d";
+    UPPERBARCONTAINER.style.backgroundColor = "#00d2a7";
+    PROMPTCONTAINER.style.backgroundColor = "#7cecbe";
+    PLAYERSCONTAINER.style.backgroundColor = "#7cecbe";
+
+    ROOMJOINCONTAINER.style.backgroundColor = "#6cafe6";
+    RESULTSCONTAINER.style.backgroundColor = "#6cafe6";
+    GAMEMENUCONTAINER.style.backgroundColor = "#6cafe6";
+    PROMPTCONTAINER.style.backgroundColor = "#6cafe6";
+    VOTESCONTAINER.style.backgroundColor = "#6cafe6";
+
+    ROUNDDISPLAYTEXT.style.color = "#ffffff";
+    TITLETEXT.style.color = "#ffffff";
+    ROUNDTIMERTEXT.style.color = "#ffffff";
 }
 
 function addListenersToMenu() {
@@ -339,7 +367,6 @@ function addListenersToMenu() {
         }
     });
 }
-addListenersToMenu();
 
 var selectedVoteButton = -1;
 function startVoteUI(playerNames, playerAnswers, excludeIndex) {
@@ -366,16 +393,16 @@ function startVoteUI(playerNames, playerAnswers, excludeIndex) {
         (function(div) {
             div.addEventListener('click', function() {
                 if(selectedVoteButton === -1) {
-                    div.style.backgroundColor = "rgb(255, 0, 0)";
+                    div.style.backgroundColor = "#42187e";
                     selectedVoteButton = div.id;
                 } else if (selectedVoteButton === div.id) {
-                    div.style.backgroundColor = "rgb(0, 128, 0)";
+                    div.style.backgroundColor = "#5149d3";
                     selectedVoteButton = -1;
                 } else if (selectedVoteButton !== div.id) {
                     for (var j = 0; j < divs.length; j++) {
-                        divs[j].style.backgroundColor = "rgb(0, 128, 0)";
+                        divs[j].style.backgroundColor = "#5149d3";
                     }
-                    div.style.backgroundColor = "rgb(255, 0, 0)";
+                    div.style.backgroundColor = "#42187e";
                     selectedVoteButton = div.id;
                 }
             });
@@ -415,6 +442,7 @@ function displayScoreChangeForPlayer(index, magnitude) {
     const playerScoreChangeBox = document.createElement("div");
     playerScoreChangeBox.classList.add("player-score-change-box");
     playerScoreChangeBox.innerText = "(+" + magnitude + ")";
+    playerScoreChangeBox.style.color = "#ffffff";
 
     playerContainers[index].appendChild(playerScoreChangeBox);
 }
@@ -423,6 +451,7 @@ function createVoteButton(idValue, textContent, promptTextContent) {
     const voteButton = document.createElement('div');
     voteButton.classList.add('vote-button');
     voteButton.setAttribute("id", idValue);
+    voteButton.style.backgroundColor = "#5149d3";
 
     const voteButtonVotesText = document.createElement('div');
     voteButtonVotesText.classList.add('vote-button-votes-text');
