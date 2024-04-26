@@ -138,7 +138,7 @@ function startFinalResultsUI(playerNames, playerScores) {
         RESULTSTEXT.appendChild(row);
         RESULTSTEXT.appendChild(brElem);
     }
-    TITLETEXT.innerHTML = "Results";
+    TITLETEXT.innerHTML = "Final Results";
 }
 
 function addMessageToChatbox(messageText, sender) {
@@ -172,7 +172,7 @@ function startGame(prompt, round, maxRounds) {
     MESSAGEFIELD.style.visibility = "visible";
     MESSAGESEND.style.visibility = "visible";
 
-    TITLETEXT.innerHTML = "Write a Prompt!";
+    TITLETEXT.innerHTML = "Write an answer!";
 }
 
 function setRoundCountdown(roundTime) {
@@ -381,7 +381,7 @@ function startVoteUI(playerNames, playerAnswers, excludeIndex) {
             });
         })(divs[i]);
     }
-
+    MESSAGECONTAINER.style.display = "none";
     TITLETEXT.innerHTML = "Vote!";
 }
 

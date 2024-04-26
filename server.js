@@ -31,7 +31,11 @@ io.on('connection', (socket) => {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Room is full."})
             return;
         }
-        
+        if(rooms[data.roomID].getPlayerNames().includes(data.playerName) === true){
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name already taken."})
+            return;
+        }
+
         const roomID = data.roomID;
         socket.join(roomID);
         socket.player = new Player(data.playerName, 0);
@@ -93,7 +97,6 @@ io.on('connection', (socket) => {
         room.isPack3 = data.isPack3;
 
         startCountdown(room.getPromptTime(), "PROMPT", room);
-        console.log("Started game for room: " + room.getID());
 
         var selectedPrompt = generateRandomPrompt(room);
 
@@ -102,7 +105,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('promptSubmission', (prompt) => {
-        if(socket.player === null) return;
+        if(socket.player === null) { return; }
+        if(prompt.length > 20) { 
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Prompt must be less than 20 characters."});
+            return; 
+        }
         socket.player.answer = prompt;
         const isAllResponses = rooms[socket.player.getRoomID()].responseAdded();
 
@@ -177,6 +184,27 @@ io.on('connection', (socket) => {
         socket.player = new Player(playerName, 0);
 
         rooms[roomID] = new Room(roomID);
+        
+        const room = rooms[roomID];
+        room.promptTime = 15;
+        room.voteTime = 10;
+        room.resultTime = 3;
+        room.rounds = 3;
+
+        room.isPack1 = true;
+        room.isPack2 = false;
+        room.isPack3 = false;
+        socket.emit('menuUpdate', {
+            promptTime: room.promptTime,
+            voteTime: room.voteTime,
+            resultTime: room.resultTime,
+            rounds: room.rounds,
+
+            isPack1: room.isPack1,
+            isPack2: room.isPack2,
+            isPack3: room.isPack3
+        });
+
         rooms[roomID].addPlayer(socket.player);
 
         socket.emit('sendToMenu', roomID);
@@ -199,7 +227,7 @@ function updatePlayerButtons(roomID) {
 
 function generateRandomPrompt(game) {
     possiblePrompts = [];
-    pack1Prompts = [];
+    pack1Prompts = ["The government is running low on funds. We need to ____"];
     pack2Prompts = [];
     pack3Prompts = [];
     if(game.isPack1 === true) {
