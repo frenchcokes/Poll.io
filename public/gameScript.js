@@ -260,7 +260,7 @@ function addListenersToMenu() {
     var inputFieldsLength = inputFields.length;
     for(let i = 0; i < inputFieldsLength; i++) {
         inputFields[i].addEventListener("change", function() {
-            socket.io.emit("menuUpdate", {
+            socket.emit("menuUpdate", {
                 promptTime: PROMPTTIME.value,
                 voteTime: VOTETIME.value,
                 resultTime: RESULTTIME.value,
@@ -344,9 +344,6 @@ addListenersToMenu();
 var selectedVoteButton = -1;
 function startVoteUI(playerNames, playerAnswers, excludeIndex) {
     hideAllGameElements();
-
-    //SHOW PROMPT
-    PROMPTTEXT.innerText = "PROMPT";
 
     selectedVoteButton = -1;
     var numberOfButtons = playerNames.length;

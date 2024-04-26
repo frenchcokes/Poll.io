@@ -27,6 +27,11 @@ io.on('connection', (socket) => {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
             return; 
         }
+        if(rooms[data.roomID].size() >= 8) {
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Room is full."})
+            return;
+        }
+        
         const roomID = data.roomID;
         socket.join(roomID);
         socket.player = new Player(data.playerName, 0);
@@ -38,6 +43,18 @@ io.on('connection', (socket) => {
 
         io.to(roomID).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has joined!" });
         console.log("A client has joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
+        
+        const room = rooms[roomID];
+        socket.emit('menuUpdate', {
+            promptTime: room.promptTime,
+            voteTime: room.voteTime,
+            resultTime: room.resultTime,
+            rounds: room.rounds,
+
+            isPack1: room.isPack1,
+            isPack2: room.isPack2,
+            isPack3: room.isPack3
+        });
     });
 
     socket.on('disconnect', () => {
@@ -86,7 +103,6 @@ io.on('connection', (socket) => {
 
     socket.on('promptSubmission', (prompt) => {
         if(socket.player === null) return;
-        console.log("Received prompt: " + prompt)
         socket.player.answer = prompt;
         const isAllResponses = rooms[socket.player.getRoomID()].responseAdded();
 
@@ -115,6 +131,17 @@ io.on('connection', (socket) => {
 
     socket.on('menuUpdate', (data) => {
         if(socket.player === null) return;
+
+        const room = rooms[socket.player.getRoomID()];
+        room.promptTime = data.promptTime;
+        room.voteTime = data.voteTime;
+        room.resultTime = data.resultTime;
+        room.rounds = data.rounds;
+
+        room.isPack1 = data.isPack1;
+        room.isPack2 = data.isPack2;
+        room.isPack3 = data.isPack3;
+
         io.to(socket.player.getRoomID()).emit('menuUpdate', data);
     });
 
@@ -123,7 +150,7 @@ io.on('connection', (socket) => {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
             return; 
         }
-        if(Object.keys(rooms).length() >= 50) { 
+        if(Object.keys(rooms).length >= 50) { 
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Server at capacity! Try again later."}); 
             return; 
         }
@@ -254,7 +281,6 @@ function resultsScreen(game) {
 
 
 function startCountdown(length, type, game) {
-    console.log("Started: " + type + " countdown.")
     game.clearTimeInterval();
     game.setTime(length);
     io.to(game.getID()).emit('loop', { time: game.getTime() });
