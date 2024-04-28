@@ -321,7 +321,7 @@
   background-color: #00906d; 
   margin: 0 auto;
   position: relative;
-  height: 40vh;
+  height: 100vh;
 }
 
 .info-row {
@@ -330,10 +330,46 @@
   text-align: center;
 }
 
+.centered-text-row {
+    text-align: center;
+    color: white;
+}
+
 .info-column {
   width: 400px;
   height: 250px;
   background-color: #00d2a7;
   margin: 20px;
   text-align: center;
+
+  font-size: 20px;
+  color: white;
+}
+
+.info-column-title {
+  font-size: 30px;
+  color: white;
+  margin-bottom: 5px;
+}
+
+.info-column-text {
+  font-size: 20px;
+  color: white;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.link {
+    color: white;
+}
+
+.feedback-text-field {
+    margin-top: 10px;
+    width: 350px;
+    height: 100px;
+    font-size: 20px;
+}
+
+.list-element {
+    margin-bottom: 8px;
 }
