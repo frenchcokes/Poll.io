@@ -13,10 +13,20 @@ const { setInterval } = require('timers');
 
 app.get('/', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/game.html"));
-})
+});
 
+app.get('/tos', async(req, res) => {
+    res.sendFile(path.join(__dirname, "/public/tos.html"));
+});
+
+app.get('/credits', async(req, res) => {
+    res.sendFile(path.join(__dirname, "/public/credits.html"));
+});
+
+baseName = "localhost:3000";
 const rooms = {};
 io.on('connection', (socket) => {
+    socket.emit('addLinks', baseName);
     socket.player = null;
     socket.on('joinRoom', (data) => {
         if(rooms[data.roomID] === undefined) { 
@@ -167,7 +177,7 @@ io.on('connection', (socket) => {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Server at capacity! Try again later."}); 
             return; 
         }
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const characters = '0123456789ABCDEF';
         const roomCodeLength = 6;
 
         function generateRoomCode() {
@@ -218,6 +228,10 @@ io.on('connection', (socket) => {
 
         socket.emit("chatboxMessageReceived", { sender: "Server", message: "Room created! Room code: " + roomID })
         console.log("A client has created and joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
+    });
+
+    socket.on('feedbackSubmission', (feedback) => {
+        console.log("Someone gave the feedback: " + feedback);
     });
 });
 
@@ -335,7 +349,7 @@ function nextRound(game) {
 }
 
 
-server.listen(3000, '0.0.0.0', () => {
+server.listen(3000, () => {
     console.log('Server started on http://localhost:3000');
 });
 

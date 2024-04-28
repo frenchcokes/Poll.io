@@ -49,8 +49,18 @@ const CHATBOXMESSAGESCONTAINER = document.getElementById("CHAT-MESSAGES-CONTAINE
 const CHATBOXFIELD = document.getElementById("CHATBOX-FIELD");
 const CHATBOXSEND = document.getElementById("CHATBOX-SEND");
 
+const FEEDBACKTEXTFIELD = document.getElementById("FEEDBACKFIELD");
+const FEEDBACKSENDBUTTON= document.getElementById("FEEDBACKSENDBUTTON");
+
+const CREDITSLINK = document.getElementById("CREDITSLINK");
+const TOSLINK = document.getElementById("TOSLINK");
+
 socket.on("chatboxMessageReceived", (dataJson) => {
     addMessageToChatbox(dataJson.message, dataJson.sender);
+});
+
+socket.on("addLinks", (baseName) => {
+    addLinks(baseName);
 });
 
 socket.on("updatePlayerButtons", (dataJson) => {
@@ -267,6 +277,11 @@ function main() {
     addColors();
 }
 
+function addLinks(baseName) {
+    CREDITSLINK.href ="http://" + baseName + "/credits"
+    TOSLINK.href ="http://" + baseName + "/tos"
+}
+
 function addColors() {
     GAMETITLETEXT.style.color = "#ffffff";
     OUTERCONTAINER.style.backgroundColor = "#00906d";
@@ -369,6 +384,18 @@ function addListenersToMenu() {
             ROOMJOINNAMEFIELD.value = "";
             ROOMJOINCODEFIELD.value = "";
         }
+    });
+
+    FEEDBACKSENDBUTTON.addEventListener("click", function() {
+        FEEDBACKTEXTFIELD.maxlength = 100;
+        FEEDBACKTEXTFIELD.placeholder = "Enter feedback here! (100 characters max)";
+        if(FEEDBACKTEXTFIELD.value === "") {
+            addMessageToChatbox("Please enter some feedback first!","Server");
+            return;
+        }
+        socket.emit("feedbackSubmission", FEEDBACKTEXTFIELD.value);
+        addMessageToChatbox("Feedback sent! Thanks!","Server");
+        FEEDBACKTEXTFIELD.value="";
     });
 }
 

@@ -320,8 +320,7 @@
   width: 1250px;
   background-color: #00906d; 
   margin: 0 auto;
-  position: relative;
-  height: 100vh;
+  padding-bottom: 10px;
 }
 
 .info-row {
@@ -367,7 +366,8 @@
     margin-top: 10px;
     width: 350px;
     height: 100px;
-    font-size: 20px;
+    font-size: 15px;
+    resize: none;
 }
 
 .list-element {
