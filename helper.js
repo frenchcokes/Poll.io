@@ -5,6 +5,7 @@ class Room {
         this.currentRound = 0;
         this.responseCounter = [];
         this.scoreChanges = [];
+        this.usedPromptIndexes = [];
         this.currentResponses = 0;
         //Settings
         this.promptTime = -1;
@@ -65,6 +66,11 @@ class Room {
     }
 
     addVoteToCounterIndex(index) { this.responseCounter[index]++; }
+
+    addUsedPromptIndex(index) { this.usedPromptIndexes.push(index); }
+    isPromptIndexUsed(index) { return this.usedPromptIndexes.includes(); }
+    resetUsedPromptIndexes() { this.usedPromptIndexes = []; }
+    usedPromptIndexes() { return this.usedPromptIndexes; }
 
     responseAdded() { 
         this.currentResponses++; 

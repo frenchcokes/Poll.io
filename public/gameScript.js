@@ -387,10 +387,13 @@ function addListenersToMenu() {
     });
 
     FEEDBACKSENDBUTTON.addEventListener("click", function() {
-        FEEDBACKTEXTFIELD.maxlength = 100;
         FEEDBACKTEXTFIELD.placeholder = "Enter feedback here! (100 characters max)";
         if(FEEDBACKTEXTFIELD.value === "") {
             addMessageToChatbox("Please enter some feedback first!","Server");
+            return;
+        }
+        if(FEEDBACKTEXTFIELD.value.length > 100) {
+            addMessageToChatbox("Please make the feedback shorter!","Server");
             return;
         }
         socket.emit("feedbackSubmission", FEEDBACKTEXTFIELD.value);

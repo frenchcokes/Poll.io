@@ -10,6 +10,7 @@ const io = socketIo(server);
 
 const path = require('path');
 const { setInterval } = require('timers');
+const { type } = require('os');
 
 app.get('/', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/game.html"));
@@ -25,6 +26,22 @@ app.get('/credits', async(req, res) => {
 
 baseName = "localhost:3000";
 const rooms = {};
+pack1Prompts = [];
+pack2Prompts = [];
+pack3Prompts = [];
+
+addPrompts();
+function addPrompts() {
+    const fs = require('fs');
+    const fileContent = fs.readFileSync('prompts.txt', 'utf8');
+    const lines = fileContent.trim().split('\n');
+    const arrays = lines.map((line) => JSON.parse(line));
+
+    pack1Prompts = arrays[0];
+    pack2Prompts = arrays[1];
+    pack3Prompts = arrays[2];
+}
+
 io.on('connection', (socket) => {
     socket.emit('addLinks', baseName);
     socket.player = null;
@@ -121,7 +138,7 @@ io.on('connection', (socket) => {
             return; 
         }
         if((rooms[socket.player.getRoomID()].getPlayerAnswers().includes(prompt)) === true) {
-            socket.emit('chatboxMessageReceived', { sender: "Server", message: "That prompt was already submitted."});
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "That answer was already submitted."});
             return;
         }
 
@@ -148,6 +165,7 @@ io.on('connection', (socket) => {
         if(socket.player === null) return;
         rooms[socket.player.getRoomID()].resetPlayerScores();
         rooms[socket.player.getRoomID()].resetPlayerAnswers();
+        rooms[socket.player.getRoomID()].resetUsedPromptIndexes();
         updatePlayerButtons(socket.player.getRoomID());
         io.to(socket.player.getRoomID()).emit('backToMenu');
     });
@@ -231,6 +249,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('feedbackSubmission', (feedback) => {
+        if(feedback.length > 100) { return; }
         console.log("Someone gave the feedback: " + feedback);
     });
 });
@@ -247,23 +266,29 @@ function updatePlayerButtons(roomID) {
 
 function generateRandomPrompt(game) {
     possiblePrompts = [];
-    pack1Prompts = ["The government is running low on funds. We need to ____"];
-    pack2Prompts = [];
-    pack3Prompts = [];
     if(game.isPack1 === true) {
         possiblePrompts = possiblePrompts.concat(pack1Prompts);
     }
     if(game.isPack2 === true) {
-        possiblePrompts = possiblePrompts.concat(pack1Prompts);
+        possiblePrompts = possiblePrompts.concat(pack2Prompts);
     }
     if(game.isPack3 === true) {
-        possiblePrompts = possiblePrompts.concat(pack1Prompts);
+        possiblePrompts = possiblePrompts.concat(pack3Prompts);
+    }
+
+    if(possiblePrompts.length === game.usedPromptIndexes.length) {
+        return "Spaghetti Marinara";
     }
 
     var randomIndex = Math.floor(Math.random() * possiblePrompts.length);
-    var value = possiblePrompts[randomIndex];
+    while(game.isPromptIndexUsed(randomIndex) === true) {
+        randomIndex = Math.floor(Math.random() * possiblePrompts.length);
+    }
+    game.addUsedPromptIndex(randomIndex);
 
-    return value;
+    var modifiedPrompt = possiblePrompts[randomIndex].replace("[ANYPLAYER]", game.getPlayerNames()[Math.floor(Math.random() * game.getPlayerNames().length)]);
+
+    return modifiedPrompt;
 }
 
 function startResults(game) {
