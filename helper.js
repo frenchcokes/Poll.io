@@ -43,7 +43,18 @@ class Room {
         this.resetPlayerAnswers();
     }
 
-    resetPlayerAnswers() { this.players.forEach(p => p.setAnswer("Quarter Pounder with Cheese")); }
+    resetPlayerAnswers() { 
+        const answers = ["Pizza", "Burger", "Taco", "Sushi", "Spaghetti", "Fried Chicken", "Tomato", "Bacon"];
+        const usedIndexes = [];
+        this.players.forEach(p => {
+            let randomIndex;
+            do {
+            randomIndex = Math.floor(Math.random() * answers.length);
+            } while (usedIndexes.includes(randomIndex));
+            usedIndexes.push(randomIndex);
+            p.setAnswer(answers[randomIndex]);
+        });
+    }
 
     resetPlayerScores() { this.players.forEach(p => p.setScore(0));}
 
