@@ -165,11 +165,13 @@ io.on('connection', (socket) => {
 
     socket.on('backToMenu', () => {
         if(socket.player === null) return;
-        rooms[socket.player.getRoomID()].resetPlayerScores();
-        rooms[socket.player.getRoomID()].resetPlayerAnswers();
-        rooms[socket.player.getRoomID()].resetUsedPromptIndexes();
-        rooms[socket.player.getRoomID()].resetRoundCounter();
-        rooms[socket.player.getRoomID()].resetResponses();
+        const room = rooms[socket.player.getRoomID()];
+        room.resetPlayerScores();
+        room.resetPlayerAnswers();
+        room.resetUsedPromptIndexes();
+        room.resetRoundCounter();
+        room.resetResponses();
+
         updatePlayerButtons(socket.player.getRoomID());
         io.to(socket.player.getRoomID()).emit('backToMenu');
     });
