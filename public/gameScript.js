@@ -1,5 +1,5 @@
 
-const socket = io('polliowebgameproject.uw.r.appspot.com');
+const socket = io('polldotio.uw.r.appspot.com');
 
 const GAMETITLETEXT = document.querySelector('.title');
 const OUTERCONTAINER = document.querySelector('.outer-container');
