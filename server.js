@@ -12,6 +12,8 @@ const path = require('path');
 const { setInterval } = require('timers');
 const { type } = require('os');
 
+const PORT = process.env.PORT || 3000;
+
 app.get('/', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/game.html"));
 });
@@ -374,8 +376,8 @@ function nextRound(game) {
 }
 
 
-server.listen(3000, () => {
-    console.log('Server started on http://localhost:3000');
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running at http://0.0.0.0:${PORT}/`);
 });
 
 app.use(express.static('public'));
