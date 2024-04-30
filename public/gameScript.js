@@ -384,6 +384,9 @@ function addListenersToMenu() {
             ROOMJOINNAMEFIELD.value = "";
             ROOMJOINCODEFIELD.value = "";
         }
+        else {
+            addMessageToChatbox("Add a name first!", "Server");
+        }
     });
 
     FEEDBACKSENDBUTTON.addEventListener("click", function() {
