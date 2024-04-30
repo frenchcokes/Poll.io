@@ -26,7 +26,7 @@ app.get('/credits', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/credits.html"));
 });
 
-baseName = "localhost:3000";
+baseName = "polliowebgameproject.uw.r.appspot.com";
 const rooms = {};
 pack1Prompts = [];
 pack2Prompts = [];
@@ -168,6 +168,8 @@ io.on('connection', (socket) => {
         rooms[socket.player.getRoomID()].resetPlayerScores();
         rooms[socket.player.getRoomID()].resetPlayerAnswers();
         rooms[socket.player.getRoomID()].resetUsedPromptIndexes();
+        rooms[socket.player.getRoomID()].resetRoundCounter();
+        rooms[socket.player.getRoomID()].resetResponses();
         updatePlayerButtons(socket.player.getRoomID());
         io.to(socket.player.getRoomID()).emit('backToMenu');
     });
@@ -279,7 +281,7 @@ function generateRandomPrompt(game) {
     }
 
     if(possiblePrompts.length === game.usedPromptIndexes.length) {
-        return "Spaghetti Marinara";
+        game.resetUsedPromptIndexes();
     }
 
     var randomIndex = Math.floor(Math.random() * possiblePrompts.length);
@@ -313,6 +315,7 @@ function startVotes(game) {
     game.clearTimeInterval();
     startCountdown(game.getVoteTime(), "VOTE", game);
 
+    game.resetResponses();
     game.resetResponseVoteCounter();
 
     const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(game.getID()));

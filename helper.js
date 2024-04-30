@@ -47,6 +47,10 @@ class Room {
 
     resetPlayerScores() { this.players.forEach(p => p.setScore(0));}
 
+    resetRoundCounter() { this.currentRound = 0; }
+
+    resetUsedPromptIndexes() { this.usedPromptIndexes = []; }
+
     getVoteResponseCounter() { return this.responseCounter; }
     
     resetResponseVoteCounter() {
@@ -61,6 +65,10 @@ class Room {
         this.scoreChanges = Array.from({ length }, () => 0);
     }
 
+    resetResponses() {
+        this.currentResponses = 0;
+    }
+
     addScoreChangeToIndex(index, amount) {
         this.scoreChanges[index] = this.scoreChanges[index] + amount;
     }
@@ -68,7 +76,7 @@ class Room {
     addVoteToCounterIndex(index) { this.responseCounter[index]++; }
 
     addUsedPromptIndex(index) { this.usedPromptIndexes.push(index); }
-    isPromptIndexUsed(index) { return this.usedPromptIndexes.includes(); }
+    isPromptIndexUsed(index) { return this.usedPromptIndexes.includes(index); }
     resetUsedPromptIndexes() { this.usedPromptIndexes = []; }
     usedPromptIndexes() { return this.usedPromptIndexes; }
 

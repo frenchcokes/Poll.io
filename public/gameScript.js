@@ -1,5 +1,5 @@
 
-const socket = io('http://localhost:3000');
+const socket = io('polliowebgameproject.uw.r.appspot.com');
 
 const GAMETITLETEXT = document.querySelector('.title');
 const OUTERCONTAINER = document.querySelector('.outer-container');
