@@ -26,9 +26,7 @@ app.get('/credits', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/credits.html"));
 });
 
-//baseName = "polldotio.uw.r.appspot.com";
-baseName = "localhost:3000";
-
+baseName = "polldotio.uw.r.appspot.com";
 const rooms = {};
 pack1Prompts = [];
 pack2Prompts = [];
@@ -118,7 +116,6 @@ io.on('connection', (socket) => {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Please select at least one pack."});
             return;
         }
-        
         room.promptTime = data.promptTime;
         room.voteTime = data.voteTime;
         room.resultTime = data.resultTime;
@@ -132,7 +129,6 @@ io.on('connection', (socket) => {
 
         var selectedPrompt = generateRandomPrompt(room);
 
-        room.resetPlayerAnswers();
         io.to(socket.player.getRoomID()).emit('chatboxMessageReceived', { sender: "Server", message: "Started Game!"});
         io.to(socket.player.getRoomID()).emit('startGame', { prompt: selectedPrompt, round: room.getCurrentRound(), maxRounds: room.getRounds()});
     });
@@ -381,7 +377,6 @@ function nextRound(game) {
 
     game.nextRound();
     var selectedPrompt = generateRandomPrompt(game);
-    room.resetPlayerAnswers();
     io.to(game.getID()).emit('startGame', { prompt: selectedPrompt, round: game.getCurrentRound(), maxRounds: game.getRounds() });
 }
 
