@@ -255,7 +255,7 @@ io.on('connection', (socket) => {
 
     socket.on('feedbackSubmission', (feedback) => {
         if(feedback.length > 100) { return; }
-        console.log("Someone gave the feedback: " + feedback);
+        console.log("FB: " + feedback);
     });
 });
 
