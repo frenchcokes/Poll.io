@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Room does not exist."})
             return; 
         }
-        if(data.playerName.length > 10) { 
+        if(data.playerName.length > 8) { 
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
             return; 
         }
@@ -193,7 +193,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on("createRoom", (playerName) => {
-        if(playerName.length > 10) { 
+        if(playerName.length > 8) { 
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
             return; 
         }
