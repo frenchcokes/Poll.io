@@ -27,6 +27,8 @@ app.get('/credits', async(req, res) => {
 });
 
 baseName = "polldotio.uw.r.appspot.com";
+//baseName = "localhost:3000";
+
 const rooms = {};
 pack1Prompts = [];
 pack2Prompts = [];
@@ -52,7 +54,7 @@ io.on('connection', (socket) => {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Room does not exist."})
             return; 
         }
-        if(data.playerName.length > 15) { 
+        if(data.playerName.length > 10) { 
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
             return; 
         }
@@ -75,7 +77,6 @@ io.on('connection', (socket) => {
         updatePlayerButtons(roomID);
 
         io.to(roomID).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has joined!" });
-        console.log("A client has joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
         
         const room = rooms[roomID];
         socket.emit('menuUpdate', {
@@ -94,7 +95,6 @@ io.on('connection', (socket) => {
         if(socket.player === null) return;
         const room = rooms[socket.player.getRoomID()];
         room.removePlayer(socket.player);
-        console.log('A client has disconnected from room: ' + room.getID() + ". There are now " + room.size() + " clients in the room.");
         if(room.size() === 0) {
             delete rooms[room.getID()];
         }
@@ -193,7 +193,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on("createRoom", (playerName) => {
-        if(playerName.length > 15) { 
+        if(playerName.length > 10) { 
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
             return; 
         }
@@ -251,7 +251,6 @@ io.on('connection', (socket) => {
         updatePlayerButtons(roomID);
 
         socket.emit("chatboxMessageReceived", { sender: "Server", message: "Room created! Room code: " + roomID })
-        console.log("A client has created and joined room: " + roomID + ". There are now " + rooms[roomID].size() + " clients in the room.");
     });
 
     socket.on('feedbackSubmission', (feedback) => {

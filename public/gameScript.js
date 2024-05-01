@@ -1,5 +1,5 @@
-
 const socket = io('polldotio.uw.r.appspot.com');
+//const socket = io('localhost:3000');
 
 const GAMETITLETEXT = document.querySelector('.title');
 const OUTERCONTAINER = document.querySelector('.outer-container');
