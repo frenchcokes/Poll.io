@@ -1,5 +1,5 @@
-const socket = io('polldotio.uw.r.appspot.com');
-//const socket = io('localhost:3000');
+//const socket = io('polldotio.uw.r.appspot.com');
+const socket = io('localhost:3000');
 
 const GAMETITLETEXT = document.querySelector('.title');
 const OUTERCONTAINER = document.querySelector('.outer-container');
@@ -194,7 +194,7 @@ function startGame(prompt, round, maxRounds) {
 }
 
 function setRoundCountdown(roundTime) {
-    ROUNDTIMERTEXT.textContent = "Time Remaining: " + roundTime;
+    ROUNDTIMERTEXT.textContent = roundTime;
 }
 
 function updateGameMenu(jsonParse) {
@@ -293,7 +293,7 @@ function addColors() {
     RESULTSCONTAINER.style.backgroundColor = "#6cafe6";
     GAMEMENUCONTAINER.style.backgroundColor = "#6cafe6";
     PROMPTCONTAINER.style.backgroundColor = "#6cafe6";
-    VOTESCONTAINER.style.backgroundColor = "#6cafe6";
+    VOTESCONTAINER.style.backgroundColor = "rgba(255, 255, 255, 0)";
 
     ROUNDDISPLAYTEXT.style.color = "#ffffff";
     TITLETEXT.style.color = "#ffffff";

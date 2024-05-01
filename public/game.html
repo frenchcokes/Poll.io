@@ -67,6 +67,7 @@
                             7. Player 7 ()<br>
                             8. Player 8 ()<br>
                         </div>
+                        <br>
                         <button class="results-next-game">
                             Game menu
                         </button>
@@ -116,14 +117,14 @@
                             <input type="checkbox" id="PACK3"></input>
                         </div>
                         <br>
-                        <div class="game-menu-row" id="GAMESTARTBUTTON">
-                            <button class="menu-submit-button">Start the game!</button>
-                        </div>
-                        <br>
                         <div class="section-heading">Room Code</div>
                         <div class="game-menu-row">
                             <input id="ROOMCODE" type="text" class="room-code" value="" readonly>
                         </div>
+                        <div class="game-menu-row" id="GAMESTARTBUTTON">
+                            <button class="menu-submit-button">Start Game</button>
+                        </div>
+                        <br>
                     </div>
 
                     <div class="main-gameplay">
@@ -131,8 +132,9 @@
                             Among us
                         </div> 
                         <div class="votes-container" id="VOTESCONTAINER">
-                            <div id="FORMSUBMIT">
+                            <div id="FORMSUBMIT" class="column">
                                 <input type="text" class="message-input" id="MESSAGE-INPUT" placeholder="Type an answer...">
+                                <br>
                                 <button class="message-input-send" id="MESSAGE-SEND">Submit!</button>
                             </div>
                             <div class="votes-row">

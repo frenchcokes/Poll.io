@@ -26,8 +26,8 @@ app.get('/credits', async(req, res) => {
     res.sendFile(path.join(__dirname, "/public/credits.html"));
 });
 
-baseName = "polldotio.uw.r.appspot.com";
-//baseName = "localhost:3000";
+//baseName = "polldotio.uw.r.appspot.com";
+baseName = "localhost:3000";
 
 const rooms = {};
 pack1Prompts = [];
@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
             return; 
         }
         if(data.playerName.length > 8) { 
-            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 8 characters."});
             return; 
         }
         if(rooms[data.roomID].size() >= 8) {
@@ -194,7 +194,7 @@ io.on('connection', (socket) => {
 
     socket.on("createRoom", (playerName) => {
         if(playerName.length > 8) { 
-            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 15 characters."});
+            socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 8 characters."});
             return; 
         }
         if(Object.keys(rooms).length >= 50) { 
