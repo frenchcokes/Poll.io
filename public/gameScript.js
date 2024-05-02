@@ -111,6 +111,11 @@ socket.on("emptyChatbox", () => {
     emptyChatbox();
 });
 
+function main() {
+    addListenersToMenu();
+    addColors();
+}
+
 function backToMenu() {
     ROUNDDISPLAYTEXT.innerHTML = "";
     ROUNDTIMERTEXT.innerHTML = "";
@@ -270,11 +275,6 @@ function hideAllGameElements() {
     MESSAGEFIELD.style.visibility = "hidden";
     MESSAGEFIELD.value = "";
     MESSAGESEND.style.visibility = "hidden";
-}
-main();
-function main() {
-    addListenersToMenu();
-    addColors();
 }
 
 function addLinks(baseName) {
@@ -535,3 +535,5 @@ function displayToRows(buttons, isRandom) {
 function emptyChatbox() {
     CHATBOXMESSAGESCONTAINER.innerHTML = "";
 }
+
+main();
