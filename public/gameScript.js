@@ -286,7 +286,6 @@ function addColors() {
     GAMETITLETEXT.style.color = "#ffffff";
     OUTERCONTAINER.style.backgroundColor = "#00906d";
     UPPERBARCONTAINER.style.backgroundColor = "#00d2a7";
-    PROMPTCONTAINER.style.backgroundColor = "#7cecbe";
     PLAYERSCONTAINER.style.backgroundColor = "#7cecbe";
 
     ROOMJOINCONTAINER.style.backgroundColor = "#6cafe6";

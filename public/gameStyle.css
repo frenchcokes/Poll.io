@@ -1,48 +1,10 @@
-.general-container {
-    display: flex;
-    width: 1200px;
-    height: 590px;
-    margin: 0 auto;
-}
-
-.upper-bar-container {
-    margin: 0 auto;
-    width: 1200px;
-    height: 37px;
-    background-color: #00d2a7;
-    display: flex;
-  
-}
-
 .outer-container {
-  background-color: #00906d;
-  width: 1250px;
-  height: 1100px;
-  margin: 0 auto;
-  border-radius: 75px;
-  border: 10px solid #6CAFE6;
-}
-
-.round-display {
-    font-size: 30px;
-    flex: 1;
-    text-align: left;
-    margin-right: auto;
-    margin-left: 5px;
-}
-
-.title-display {
-    flex: 1;
-    text-align: center;
-    font-size: 30px;
-}
-
-.round-timer {
-    flex: 1;
-    font-size: 30px;
-    text-align: right;
-    margin-left: auto;
-    margin-right: 5px;
+    background-color: #00906d;
+    width: 1250px;
+    height: 1100px;
+    margin: 0 auto;
+    border-radius: 75px;
+    border: 10px solid #6CAFE6;
 }
 
 .title {
@@ -51,6 +13,50 @@
     color: white;
 }
 
+/*UPPER BAR START*/
+.upper-bar-container {
+    margin: 0 auto;
+    width: 1200px;
+    height: 37px;
+    background-color: #00d2a7;
+    display: flex;
+  
+}
+.round-display {
+    font-size: 30px;
+    flex: 1;
+    text-align: left;
+    margin-right: auto;
+    margin-left: 5px;
+}
+.title-display {
+    flex: 1;
+    text-align: center;
+    font-size: 30px;
+}
+.round-timer {
+    flex: 1;
+    font-size: 30px;
+    text-align: right;
+    margin-left: auto;
+    margin-right: 5px;
+}
+/*UPPER BAR END*/
+
+.general-container {
+    display: flex;
+    width: 1200px;
+    height: 590px;
+    margin: 0 auto;
+}
+
+/*PLAYER CONTAINER START*/
+.player-container {
+    flex-direction: column;
+    align-items: center;
+    width: 200px;
+    background-color: #7cebbe;
+}
 .player-box {
     width: 190px;
     height: 68px;
@@ -60,7 +66,14 @@
     margin-left: 5px;
     border-radius: 15px;
 }
-
+.player-title {
+    font-size: 25px;
+    text-align: center;
+}
+.player-score {
+    font-size: 25px;
+    text-align: center;
+}
 .player-score-change-box {
     position: absolute;
     color: red;
@@ -69,7 +82,126 @@
     bottom: 18px;
     z-index: 2;
 }
+/*PLAYER CONTAINER END*/
 
+
+/*PROMPT CONTAINER START*/
+.prompt-container {
+    width: 800px;
+    background-color: #6cafe6;
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+}
+.room-join-container {
+    margin-top: 10px;
+    background-color: #6cafe6;
+    width: 775px;
+    height: 575px;
+    
+    text-align: center;
+}
+.section-heading {
+    color: white;
+    justify-content: center;
+    display: flex;
+    font-size: 45px;
+}
+.name-input {
+    width: 150px;
+    height: 30px;
+    font-size: 25px;
+}
+.room-input {
+    width: 150px;
+    height: 30px;
+    font-size: 25px;
+}
+.join-room-send {
+    width: 175px;
+    height: 75px;
+  
+    font-size: 30px;
+    border-radius: 50px;
+}
+.create-room-send {
+    width: 175px;
+    height: 75px;
+
+    font-size: 30px;
+    border-radius: 50px;
+}
+/*PROMPT CONTAINER END*/
+
+/*RESULTS CONTAINER START*/
+.results-container {
+    margin-top: 10px;
+    background-color: pink;
+    width: 775px;
+    height: 575px;
+  
+    text-align: center;
+    display: none;
+}
+.results-heading {
+    font-size: 45px;
+}
+.results {
+    font-size: 30px;
+    margin-top: 10px;
+}
+.results-next-game {
+    width: 175px;
+    height: 75px;
+
+    font-size: 30px;
+    border-radius: 50px;
+}
+/*RESULTS CONTAINER END*/
+
+/*GAME MENU CONTAINER START*/
+.game-menu-container {
+    margin-top: 10px;
+    background-color: green;
+    width: 775px;
+    height: 575px;
+  
+    display: none;
+}
+.game-menu-row {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+.select-class-label {
+    color: white;
+    font-size: 25px;
+    margin-right: 10px;
+}
+.select-class {
+    font-size: 20px;
+}
+.checkbox-label {
+    color: white;
+    font-size: 25px;
+    margin-right: 3px;
+    margin-left: 15px;
+}
+.room-code {
+    text-align: center;
+    font-size: 40px;
+    width: 200px;
+}
+.menu-submit-button {
+    font-size: 30px;
+
+    width: 175px;
+    height: 75px;
+    border-radius: 50px;
+}
+/*GAME MENU CONTAINER END*/
+
+/*MAIN GAMEPLAY CONTAINER START*/
 .prompt {
     margin-top: 20px;
 
@@ -87,36 +219,6 @@
 
     display: none;
 }
-
-.player-title {
-    font-size: 25px;
-    text-align: center;
-}
-.player-score {
-    font-size: 25px;
-    text-align: center;
-}
-
-.message-input {
-    width: 300px;
-    height: 30px;
-    font-size: 25px;
-}
-
-.column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.message-input-send {
-
-    font-size: 30px;
-    width: 175px;
-    height: 75px;
-    border-radius: 50px;
-}
-
 .votes-container {
     margin-top: 20px;
     position: relative;
@@ -131,12 +233,27 @@
   
     display: none;
 }
+.column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.message-input {
+    width: 300px;
+    height: 30px;
+    font-size: 25px;
+}
+.message-input-send {
 
+    font-size: 30px;
+    width: 175px;
+    height: 75px;
+    border-radius: 50px;
+}
 .votes-row {
     display: flex;
     margin-bottom: 5px;
 }
-
 .vote-button {
     width: 175px;
     height: 75px;
@@ -146,7 +263,12 @@
     user-select: none;
     border-radius: 15px;
 }
-
+.vote-button-votes-text {
+    color: white;
+    display: flex;
+    justify-content: center;
+    user-select: none;
+}
 .vote-button-prompt-text {
     color: white;
   
@@ -157,233 +279,81 @@
     word-wrap: break-word;
     user-select: none;
 }
-
-.vote-button-votes-text {
-    color: white;
-    display: flex;
-    justify-content: center;
-    user-select: none;
-}
-
 .votes-input-send {
     width: 175px;
     height: 75px;
     font-size: 30px;
     border-radius: 50px;
 }
+/*MAIN GAMEPLAY CONTAINER END*/
 
-.prompt-container {
-    width: 800px;
-    background-color: #6cafe6;
-    flex-direction: column;
-    display: flex;
-    align-items: center;
-}
-
-.game-menu-container {
-    margin-top: 10px;
-    background-color: green;
-    width: 775px;
-    height: 575px;
-  
-    display: none;
-}
-
-.room-code {
-    text-align: center;
-    font-size: 40px;
-    width: 200px;
-}
-
-.results-container {
-    margin-top: 10px;
-    background-color: pink;
-    width: 775px;
-    height: 575px;
-  
-    text-align: center;
-    display: none;
-}
-
-.room-join-container {
-    margin-top: 10px;
-    background-color: #6cafe6;
-    width: 775px;
-    height: 575px;
-    
-    text-align: center;
-}
-
-.name-input {
-    width: 150px;
-    height: 30px;
-    font-size: 25px;
-}
-
-.room-input {
-    width: 150px;
-    height: 30px;
-    font-size: 25px;
-}
-
-.join-room-send {
-    width: 175px;
-    height: 75px;
-  
-    font-size: 30px;
-    border-radius: 50px;
-}
-
-.create-room-send {
-    width: 175px;
-    height: 75px;
-
-    font-size: 30px;
-    border-radius: 50px;
-}
-
-.results-heading {
-    font-size: 45px;
-}
-
-.results {
-    font-size: 30px;
-    margin-top: 10px;
-}
-
-.results-next-game {
-    width: 175px;
-    height: 75px;
-
-    font-size: 30px;
-    border-radius: 50px;
-}
-
-.game-menu-row {
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-}
-
-.checkbox-label {
-    color: white;
-    font-size: 25px;
-    margin-right: 3px;
-    margin-left: 15px;
-}
-
-.section-heading {
-    color: white;
-    justify-content: center;
-    display: flex;
-    font-size: 45px;
-}
-
-.select-class-label {
-    color: white;
-    font-size: 25px;
-    margin-right: 10px;
-}
-
-.select-class {
-    font-size: 20px;
-}
-
-.menu-submit-button {
-    font-size: 30px;
-
-    width: 175px;
-    height: 75px;
-    border-radius: 50px;
-}
-
-.player-container {
-    flex-direction: column;
-    align-items: center;
-    width: 200px;
-    background-color: #7cebbe;
-}
-
+/*CHATBOX CONTAINER START*/
 .chatbox-container {
     position: relative;
     width: 200px;
     background-color: white;
 }
-
-.chatbox-field {
-  width: 145px;
-  height: 20px;
-  background: white;
-}
-
-.chatbox-hud {
-  display: flex;
-  position: absolute;
-  bottom: 0;
-}
-
-.chatbox-send {
-  width: 48px;
-}
-
 .chat-messages-container {
     display: flex;
     flex-direction: column;
     overflow: auto;
     height: 565px;
 }
-
 .chat-message {
-  writing-mode: horizontal-rl;
-  text-orientation: mixed;
-  font-size: 16px;
-  margin-bottom: 1px;
-  word-wrap: break-word;
-  margin-left: 3px;
+    writing-mode: horizontal-rl;
+    text-orientation: mixed;
+    font-size: 16px;
+    margin-bottom: 1px;
+    word-wrap: break-word;
+    margin-left: 3px;
 }
+.chatbox-hud {
+    display: flex;
+    position: absolute;
+    bottom: 0;
+}
+.chatbox-field {
+    width: 145px;
+    height: 20px;
+    background: white;
+}
+.chatbox-send {
+    width: 48px;
+}
+/*CHATBOX CONTAINER END*/
 
+/*INFO CONTAINER START*/
 .info-row {
-  display: flex;
-  justify-content: space-between;
-  text-align: center;
-}
-
-.centered-text-row {
+    display: flex;
+    justify-content: space-between;
     text-align: center;
-    color: white;
-    font-size: 15px;
 }
-
 .info-column {
-  width: 400px;
-  height: 300px;
-  background-color: #00d2a7;
-  border-radius: 50px;
-  margin: 10px;
-  text-align: center;
-  border: 5px solid #6CAFE6;
-
-  font-size: 20px;
-  color: white;
-}
-
-.info-column-title {
-  font-size: 30px;
-  color: white;
-  margin-bottom: 5px;
-}
-
-.info-column-text {
-  font-size: 20px;
-  color: white;
-  margin-left: 5px;
-  margin-right: 5px;
-}
-
-.link {
+    width: 400px;
+    height: 300px;
+    background-color: #00d2a7;
+    border-radius: 50px;
+    margin: 10px;
+    text-align: center;
+    border: 5px solid #6CAFE6;
+  
+    font-size: 20px;
     color: white;
 }
-
+.info-column-title {
+    font-size: 30px;
+    color: white;
+    margin-bottom: 5px;
+}
+.info-column-text {
+    font-size: 20px;
+    color: white;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.list-element {
+    margin-bottom: 8px;
+}
 .feedback-text-field {
     margin-top: 10px;
     width: 350px;
@@ -391,11 +361,15 @@
     font-size: 15px;
     resize: none;
 }
-
 .feedback-send-button {
     border-radius: 10px;
 }
-
-.list-element {
-    margin-bottom: 8px;
+.centered-text-row {
+    text-align: center;
+    color: white;
+    font-size: 15px;
 }
+.link {
+    color: white;
+}
+/*INFO CONTAINER END*/
