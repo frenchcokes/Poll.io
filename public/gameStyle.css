@@ -107,27 +107,15 @@
     display: flex;
     font-size: 45px;
 }
-.name-input {
+.menu-input {
     width: 150px;
     height: 30px;
     font-size: 25px;
 }
-.room-input {
-    width: 150px;
-    height: 30px;
-    font-size: 25px;
-}
-.join-room-send {
+.menu-button {
     width: 175px;
     height: 75px;
   
-    font-size: 30px;
-    border-radius: 50px;
-}
-.create-room-send {
-    width: 175px;
-    height: 75px;
-
     font-size: 30px;
     border-radius: 50px;
 }
@@ -149,13 +137,6 @@
 .results {
     font-size: 30px;
     margin-top: 10px;
-}
-.results-next-game {
-    width: 175px;
-    height: 75px;
-
-    font-size: 30px;
-    border-radius: 50px;
 }
 /*RESULTS CONTAINER END*/
 
@@ -191,13 +172,6 @@
     text-align: center;
     font-size: 40px;
     width: 200px;
-}
-.menu-submit-button {
-    font-size: 30px;
-
-    width: 175px;
-    height: 75px;
-    border-radius: 50px;
 }
 /*GAME MENU CONTAINER END*/
 
@@ -243,13 +217,6 @@
     height: 30px;
     font-size: 25px;
 }
-.message-input-send {
-
-    font-size: 30px;
-    width: 175px;
-    height: 75px;
-    border-radius: 50px;
-}
 .votes-row {
     display: flex;
     margin-bottom: 5px;
@@ -278,12 +245,6 @@
     text-align: center;
     word-wrap: break-word;
     user-select: none;
-}
-.votes-input-send {
-    width: 175px;
-    height: 75px;
-    font-size: 30px;
-    border-radius: 50px;
 }
 /*MAIN GAMEPLAY CONTAINER END*/
 

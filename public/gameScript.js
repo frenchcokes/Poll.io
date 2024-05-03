@@ -15,7 +15,7 @@ const ROUNDTIMERTEXT = document.querySelector('.round-timer')
 const RESULTSCONTAINER = document.querySelector('.results-container');
 const FINALRESULTSHEADER = document.querySelector('.results-heading');
 const RESULTSTEXT = document.querySelector('.results');
-const RESULTSNEXTGAMEBUTTON = document.querySelector('.results-next-game');
+const RESULTSNEXTGAMEBUTTON = document.getElementById("NEXTGAMEBUTTON");
 
 const MAINGAMEPLAY = document.querySelector('.main-gameplay');
 const PROMPTTEXT = document.getElementById("PROMPT");
