@@ -9,8 +9,7 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 const path = require('path');
-const { setInterval } = require('timers');
-const { type } = require('os');
+const { setInterval } = require('timers');;
 
 const PORT = process.env.PORT || 3000;
 
