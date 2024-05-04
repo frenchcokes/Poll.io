@@ -115,6 +115,7 @@ io.on('connection', (socket) => {
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Please select at least one pack."});
             return;
         }
+        
         room.promptTime = data.promptTime;
         room.voteTime = data.voteTime;
         room.resultTime = data.resultTime;
@@ -124,6 +125,7 @@ io.on('connection', (socket) => {
         room.isPack2 = data.isPack2;
         room.isPack3 = data.isPack3;
 
+        room.setState("PROMPT");
         startCountdown(room.getPromptTime(), "PROMPT", room);
 
         var selectedPrompt = generateRandomPrompt(room);
@@ -170,7 +172,7 @@ io.on('connection', (socket) => {
         room.resetUsedPromptIndexes();
         room.resetRoundCounter();
         room.resetResponses();
-
+        room.setState("MENU");
         updatePlayerButtons(socket.player.getRoomID());
         io.to(socket.player.getRoomID()).emit('backToMenu');
     });
@@ -299,6 +301,8 @@ function startResults(game) {
     game.clearTimeInterval();
     startCountdown(game.getResultTime(), "RESULT", game);
 
+    game.setState("RESULT");
+
     game.resetScoreChanges();
 
     const players = game.getPlayers();
@@ -314,6 +318,8 @@ function startResults(game) {
 function startVotes(game) {
     game.clearTimeInterval();
     startCountdown(game.getVoteTime(), "VOTE", game);
+
+    game.setState("VOTE");
 
     game.resetResponses();
     game.resetResponseVoteCounter();
@@ -354,6 +360,7 @@ function countdown(type, game) {
 
 
 function resultsScreen(game) {
+    game.setState("FINALRESULTS");
     io.to(game.getID()).emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores() });
 }
 
@@ -373,6 +380,7 @@ function nextRound(game) {
     game.clearTimeInterval();
     startCountdown(game.getPromptTime(), "PROMPT", game);
 
+    game.setState("PROMPT");
     game.nextRound();
     var selectedPrompt = generateRandomPrompt(game);
     io.to(game.getID()).emit('startGame', { prompt: selectedPrompt, round: game.getCurrentRound(), maxRounds: game.getRounds() });

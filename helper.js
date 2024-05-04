@@ -7,6 +7,8 @@ class Room {
         this.scoreChanges = [];
         this.usedPromptIndexes = [];
         this.currentResponses = 0;
+
+        this.state= "MENU"; //MENU, PROMPT, VOTE, RESULT, FINALRESULTS
         //Settings
         this.promptTime = -1;
         this.voteTime = -1;
@@ -22,6 +24,9 @@ class Room {
 
         this.resetResponseVoteCounter();
     }
+
+    setState(state) { this.state = state; }
+    getState() { return this.state; }
 
     addPlayer(player) {
         player.setRoomID(this.ID);
