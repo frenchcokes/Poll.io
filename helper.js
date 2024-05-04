@@ -7,6 +7,7 @@ class Room {
         this.scoreChanges = [];
         this.usedPromptIndexes = [];
         this.currentResponses = 0;
+        this.responsesNeeded = 0;
 
         this.state= "MENU"; //MENU, PROMPT, VOTE, RESULT, FINALRESULTS
         //Settings
@@ -25,7 +26,10 @@ class Room {
         this.resetResponseVoteCounter();
     }
 
-    setState(state) { this.state = state; }
+    setState(state) { 
+        this.responsesNeeded = this.players.length;
+        this.state = state; 
+    }
     getState() { return this.state; }
 
     addPlayer(player) {
@@ -98,7 +102,7 @@ class Room {
 
     responseAdded() { 
         this.currentResponses++; 
-        if(this.currentResponses == this.players.length) {
+        if(this.currentResponses == this.responsesNeeded) {
             this.currentResponses = 0;
             return true;
         }

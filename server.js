@@ -72,22 +72,40 @@ io.on('connection', (socket) => {
 
         rooms[roomID].addPlayer(socket.player);
 
-        socket.emit('sendToMenu', roomID);
+        const currentState = rooms[roomID].getState();
+        switch(currentState) {
+            case "MENU":
+                socket.emit('sendToMenu', roomID);
+
+                io.to(roomID).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has joined!" });
+                
+                const room = rooms[roomID];
+                socket.emit('menuUpdate', {
+                    promptTime: room.promptTime,
+                    voteTime: room.voteTime,
+                    resultTime: room.resultTime,
+                    rounds: room.rounds,
+
+                    isPack1: room.isPack1,
+                    isPack2: room.isPack2,
+                    isPack3: room.isPack3
+                });
+                break;
+            case "PROMPT":
+                //To be Added
+                break;
+            case "VOTE":
+                //To be Added
+                break;
+            case "RESULT":
+                //To be Added
+                break;
+            case "FINALRESULTS":
+                //To be Added
+                break;
+        }
         updatePlayerButtons(roomID);
 
-        io.to(roomID).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has joined!" });
-        
-        const room = rooms[roomID];
-        socket.emit('menuUpdate', {
-            promptTime: room.promptTime,
-            voteTime: room.voteTime,
-            resultTime: room.resultTime,
-            rounds: room.rounds,
-
-            isPack1: room.isPack1,
-            isPack2: room.isPack2,
-            isPack3: room.isPack3
-        });
     });
 
     socket.on('disconnect', () => {
@@ -272,15 +290,9 @@ function updatePlayerButtons(roomID) {
 
 function generateRandomPrompt(game) {
     possiblePrompts = [];
-    if(game.isPack1 === true) {
-        possiblePrompts = possiblePrompts.concat(pack1Prompts);
-    }
-    if(game.isPack2 === true) {
-        possiblePrompts = possiblePrompts.concat(pack2Prompts);
-    }
-    if(game.isPack3 === true) {
-        possiblePrompts = possiblePrompts.concat(pack3Prompts);
-    }
+    if(game.isPack1 === true) { possiblePrompts = possiblePrompts.concat(pack1Prompts); }
+    if(game.isPack2 === true) { possiblePrompts = possiblePrompts.concat(pack2Prompts); }
+    if(game.isPack3 === true) { possiblePrompts = possiblePrompts.concat(pack3Prompts); }
 
     if(possiblePrompts.length === game.usedPromptIndexes.length) {
         game.resetUsedPromptIndexes();
@@ -292,9 +304,35 @@ function generateRandomPrompt(game) {
     }
     game.addUsedPromptIndex(randomIndex);
 
-    var modifiedPrompt = possiblePrompts[randomIndex].replace("[ANYPLAYER]", game.getPlayerNames()[Math.floor(Math.random() * game.getPlayerNames().length)]);
+    return possiblePrompts[randomIndex].replace("[ANYPLAYER]", game.getPlayerNames()[Math.floor(Math.random() * game.getPlayerNames().length)]);;
+}
 
-    return modifiedPrompt;
+function nextRound(game) {
+    game.clearTimeInterval();
+    startCountdown(game.getPromptTime(), "PROMPT", game);
+
+    game.setState("PROMPT");
+    game.nextRound();
+    var selectedPrompt = generateRandomPrompt(game);
+    io.to(game.getID()).emit('startGame', { prompt: selectedPrompt, round: game.getCurrentRound(), maxRounds: game.getRounds() });
+}
+
+function startVotes(game) {
+    game.clearTimeInterval();
+    startCountdown(game.getVoteTime(), "VOTE", game);
+
+    game.setState("VOTE");
+
+    game.resetResponses();
+    game.resetResponseVoteCounter();
+
+    const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(game.getID()));
+    var counter = 0;
+    socketsInRoom.forEach((socketID) => {
+        const socket = io.sockets.sockets.get(socketID);
+        socket.emit('startVotes', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), excludeIndex: counter });
+        counter = counter + 1;
+    });
 }
 
 function startResults(game) {
@@ -315,22 +353,9 @@ function startResults(game) {
     io.to(game.getID()).emit('voteResults', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), playerVotes: game.getVoteResponseCounter(), scoreChanges: game.getScoreChanges() });
 }
 
-function startVotes(game) {
-    game.clearTimeInterval();
-    startCountdown(game.getVoteTime(), "VOTE", game);
-
-    game.setState("VOTE");
-
-    game.resetResponses();
-    game.resetResponseVoteCounter();
-
-    const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(game.getID()));
-    var counter = 0;
-    socketsInRoom.forEach((socketID) => {
-        const socket = io.sockets.sockets.get(socketID);
-        socket.emit('startVotes', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), excludeIndex: counter });
-        counter = counter + 1;
-    });
+function resultsScreen(game) {
+    game.setState("FINALRESULTS");
+    io.to(game.getID()).emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores() });
 }
 
 function countdown(type, game) {
@@ -359,12 +384,6 @@ function countdown(type, game) {
 }
 
 
-function resultsScreen(game) {
-    game.setState("FINALRESULTS");
-    io.to(game.getID()).emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores() });
-}
-
-
 function startCountdown(length, type, game) {
     game.clearTimeInterval();
     game.setTime(length);
@@ -375,17 +394,6 @@ function startCountdown(length, type, game) {
     game.setIntervalID(intervalID);
     
 }
-
-function nextRound(game) {
-    game.clearTimeInterval();
-    startCountdown(game.getPromptTime(), "PROMPT", game);
-
-    game.setState("PROMPT");
-    game.nextRound();
-    var selectedPrompt = generateRandomPrompt(game);
-    io.to(game.getID()).emit('startGame', { prompt: selectedPrompt, round: game.getCurrentRound(), maxRounds: game.getRounds() });
-}
-
 
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running at http://0.0.0.0:${PORT}/`);
