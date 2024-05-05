@@ -9,7 +9,8 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 const path = require('path');
-const { setInterval } = require('timers');;
+const { setInterval } = require('timers');const { debug } = require('console');
+;
 
 const PORT = process.env.PORT || 3000;
 
@@ -67,43 +68,33 @@ io.on('connection', (socket) => {
         }
 
         const roomID = data.roomID;
+        const room = rooms[roomID];
         socket.join(roomID);
         socket.player = new Player(data.playerName, 0);
 
-        rooms[roomID].addPlayer(socket.player);
+        room.addPlayer(socket.player);
 
-        const currentState = rooms[roomID].getState();
+        const currentState = room.getState();
         switch(currentState) {
             case "MENU":
-                socket.emit('sendToMenu', roomID);
-
-                io.to(roomID).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has joined!" });
-                
-                const room = rooms[roomID];
-                socket.emit('menuUpdate', {
-                    promptTime: room.promptTime,
-                    voteTime: room.voteTime,
-                    resultTime: room.resultTime,
-                    rounds: room.rounds,
-
-                    isPack1: room.isPack1,
-                    isPack2: room.isPack2,
-                    isPack3: room.isPack3
-                });
+                socket.emit('sendToMenu', roomID);                
+                socketMenuUpdate(socket, room);
                 break;
             case "PROMPT":
-                //To be Added
+                socket.emit('startPrompt', { prompt: room.getPrompt(), round: room.getCurrentRound(), maxRounds: room.getRounds()})
                 break;
             case "VOTE":
-                //To be Added
+                socket.emit('startPrompt', { prompt: room.getPrompt(), round: room.getCurrentRound(), maxRounds: room.getRounds()})
+                socket.emit('startVotes', { playerNames: room.getPlayerNames(), playerAnswers: room.getPlayerAnswers(), excludeIndex: room.getPlayerAnswers().length - 1 });
                 break;
             case "RESULT":
-                //To be Added
+                socket.emit('voteResults', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), playerVotes: game.getVoteResponseCounter(), scoreChanges: game.getScoreChanges() });
                 break;
             case "FINALRESULTS":
-                //To be Added
+                socket.emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores() });
                 break;
         }
+        io.to(roomID).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has joined!" });
         updatePlayerButtons(roomID);
 
     });
@@ -115,6 +106,8 @@ io.on('connection', (socket) => {
         if(room.size() === 0) {
             delete rooms[room.getID()];
         }
+        io.to(room.getID()).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has left!"});
+        updatePlayerButtons(room.getID());
     });
 
     socket.on('chatboxSubmission', (message) => {
@@ -143,13 +136,9 @@ io.on('connection', (socket) => {
         room.isPack2 = data.isPack2;
         room.isPack3 = data.isPack3;
 
-        room.setState("PROMPT");
-        startCountdown(room.getPromptTime(), "PROMPT", room);
-
-        var selectedPrompt = generateRandomPrompt(room);
+        startPrompt(room);
 
         io.to(socket.player.getRoomID()).emit('chatboxMessageReceived', { sender: "Server", message: "Started Game!"});
-        io.to(socket.player.getRoomID()).emit('startGame', { prompt: selectedPrompt, round: room.getCurrentRound(), maxRounds: room.getRounds()});
     });
 
     socket.on('promptSubmission', (prompt) => {
@@ -253,16 +242,7 @@ io.on('connection', (socket) => {
         room.isPack1 = true;
         room.isPack2 = false;
         room.isPack3 = false;
-        socket.emit('menuUpdate', {
-            promptTime: room.promptTime,
-            voteTime: room.voteTime,
-            resultTime: room.resultTime,
-            rounds: room.rounds,
-
-            isPack1: room.isPack1,
-            isPack2: room.isPack2,
-            isPack3: room.isPack3
-        });
+        socketMenuUpdate(socket, room);
 
         rooms[roomID].addPlayer(socket.player);
 
@@ -278,43 +258,15 @@ io.on('connection', (socket) => {
     });
 });
 
-function updatePlayerButtons(roomID) {
-    const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(roomID));
-    var counter = 0;
-    for (const socketID of socketsInRoom) {
-        const socket = io.sockets.sockets.get(socketID);
-        socket.emit('updatePlayerButtons', { playerNames: rooms[roomID].getPlayerNames(), playerScores: rooms[roomID].getPlayerScores(), playerIndex : counter});
-        counter++;
-    }
-}
-
-function generateRandomPrompt(game) {
-    possiblePrompts = [];
-    if(game.isPack1 === true) { possiblePrompts = possiblePrompts.concat(pack1Prompts); }
-    if(game.isPack2 === true) { possiblePrompts = possiblePrompts.concat(pack2Prompts); }
-    if(game.isPack3 === true) { possiblePrompts = possiblePrompts.concat(pack3Prompts); }
-
-    if(possiblePrompts.length === game.usedPromptIndexes.length) {
-        game.resetUsedPromptIndexes();
-    }
-
-    var randomIndex = Math.floor(Math.random() * possiblePrompts.length);
-    while(game.isPromptIndexUsed(randomIndex) === true) {
-        randomIndex = Math.floor(Math.random() * possiblePrompts.length);
-    }
-    game.addUsedPromptIndex(randomIndex);
-
-    return possiblePrompts[randomIndex].replace("[ANYPLAYER]", game.getPlayerNames()[Math.floor(Math.random() * game.getPlayerNames().length)]);;
-}
-
-function nextRound(game) {
+function startPrompt(game) {
     game.clearTimeInterval();
     startCountdown(game.getPromptTime(), "PROMPT", game);
 
     game.setState("PROMPT");
     game.nextRound();
     var selectedPrompt = generateRandomPrompt(game);
-    io.to(game.getID()).emit('startGame', { prompt: selectedPrompt, round: game.getCurrentRound(), maxRounds: game.getRounds() });
+    game.setPrompt(selectedPrompt);
+    io.to(game.getID()).emit('startPrompt', { prompt: selectedPrompt, round: game.getCurrentRound(), maxRounds: game.getRounds() });
 }
 
 function startVotes(game) {
@@ -344,9 +296,11 @@ function startResults(game) {
     game.resetScoreChanges();
 
     const players = game.getPlayers();
+    const votes = game.getVoteResponseCounter();
     for (var i = 0; i < players.length; i++) {
-        players[i].addScore(game.getVoteResponseCounter()[i] * 1000);
-        game.addScoreChangeToIndex(i, game.getVoteResponseCounter()[i] * 1000);
+        if(votes[i] === undefined) { votes[i] = 0; }
+        players[i].addScore(votes[i] * 1000);
+        game.addScoreChangeToIndex(i, votes[i] * 1000);
     }
     updatePlayerButtons(game.getID());
 
@@ -356,6 +310,49 @@ function startResults(game) {
 function resultsScreen(game) {
     game.setState("FINALRESULTS");
     io.to(game.getID()).emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores() });
+}
+
+function socketMenuUpdate(socket, room) {
+    socket.emit('menuUpdate', {
+        promptTime: room.promptTime,
+        voteTime: room.voteTime,
+        resultTime: room.resultTime,
+        rounds: room.rounds,
+
+        isPack1: room.isPack1,
+        isPack2: room.isPack2,
+        isPack3: room.isPack3
+    });
+}
+
+function updatePlayerButtons(roomID) {
+    if(io.sockets.adapter.rooms.get(roomID) === undefined) { return; }
+    const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(roomID));
+    var counter = 0;
+    for (const socketID of socketsInRoom) {
+        const socket = io.sockets.sockets.get(socketID);
+        socket.emit('updatePlayerButtons', { playerNames: rooms[roomID].getPlayerNames(), playerScores: rooms[roomID].getPlayerScores(), playerIndex : counter});
+        counter++;
+    }
+}
+
+function generateRandomPrompt(game) {
+    possiblePrompts = [];
+    if(game.isPack1 === true) { possiblePrompts = possiblePrompts.concat(pack1Prompts); }
+    if(game.isPack2 === true) { possiblePrompts = possiblePrompts.concat(pack2Prompts); }
+    if(game.isPack3 === true) { possiblePrompts = possiblePrompts.concat(pack3Prompts); }
+
+    if(possiblePrompts.length === game.usedPromptIndexes.length) {
+        game.resetUsedPromptIndexes();
+    }
+
+    var randomIndex = Math.floor(Math.random() * possiblePrompts.length);
+    while(game.isPromptIndexUsed(randomIndex) === true) {
+        randomIndex = Math.floor(Math.random() * possiblePrompts.length);
+    }
+    game.addUsedPromptIndex(randomIndex);
+
+    return possiblePrompts[randomIndex].replace("[ANYPLAYER]", game.getPlayerNames()[Math.floor(Math.random() * game.getPlayerNames().length)]);;
 }
 
 function countdown(type, game) {
@@ -372,7 +369,7 @@ function countdown(type, game) {
                 break;
             case "RESULT":
                 if(game.getCurrentRound() < (game.getRounds() - 1)) {
-                    nextRound(game);
+                    startPrompt(game);
                 }
                 else {
                     resultsScreen(game);

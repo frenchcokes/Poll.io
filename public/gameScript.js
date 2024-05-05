@@ -79,12 +79,16 @@ socket.on("sendToMenu", (roomID) => {
     ROOMCODE.value = roomID;
 });
 
-socket.on("startGame", (dataJson) => {
-    startGame(dataJson.prompt, dataJson.round, dataJson.maxRounds);
+socket.on("startPrompt", (dataJson) => {
+    startPrompt(dataJson.prompt, dataJson.round, dataJson.maxRounds);
 });
 
 socket.on("backToMenu", () => {
     backToMenu();
+});
+
+socket.on("startVotes", (dataJson) => {
+    startVoteUI(dataJson.playerNames, dataJson.playerAnswers, dataJson.excludeIndex);
 });
 
 socket.on("voteResults", (dataJson) => {
@@ -93,10 +97,6 @@ socket.on("voteResults", (dataJson) => {
 
 socket.on("loop", (dataJson) => {
     setRoundCountdown(dataJson.time);
-});
-
-socket.on("startVotes", (dataJson) => {
-    startVoteUI(dataJson.playerNames, dataJson.playerAnswers, dataJson.excludeIndex);
 });
 
 socket.on("finalResults", (dataJson) => {
@@ -173,7 +173,7 @@ function addMessageToChatbox(messageText, sender) {
     CHATBOXMESSAGESCONTAINER.scrollTop = CHATBOXMESSAGESCONTAINER.scrollHeight;
 }
 
-function startGame(prompt, round, maxRounds) {
+function startPrompt(prompt, round, maxRounds) {
     hideAllGameElements();
 
     var playerBoxes = document.getElementsByClassName("player-box");
@@ -194,6 +194,29 @@ function startGame(prompt, round, maxRounds) {
     PROMPTTEXT.innerHTML = prompt;
     MESSAGEFIELD.style.visibility = "visible";
     MESSAGESEND.style.visibility = "visible";
+
+    TITLETEXT.innerHTML = "Write an answer!";
+}
+
+function startPromptLateJoin(prompt, round, maxRounds) {
+    hideAllGameElements();
+
+    var playerBoxes = document.getElementsByClassName("player-box");
+    for (var i = 0; i < playerBoxes.length; i++) {
+        var toRemove = playerBoxes[i].getElementsByClassName("player-score-change-box");
+        while(toRemove.length > 0) {
+            playerBoxes[i].removeChild(toRemove[0]);
+        }
+    }
+
+    MAINGAMEPLAY.style.display = "block";
+    ROUNDDISPLAYTEXT.innerHTML = "Round " + (round + 1) + "/" + maxRounds;
+    GAMEMENUCONTAINER.style.display = "none";
+    PROMPTTEXT.style.display = "flex";
+    VOTESCONTAINER.style.display = "flex";
+    MESSAGECONTAINER.style.display = "flex";
+
+    PROMPTTEXT.innerHTML = prompt;
 
     TITLETEXT.innerHTML = "Write an answer!";
 }
@@ -265,6 +288,7 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
 
 
 function hideAllGameElements() {
+    ROOMJOINCONTAINER.style.display = "none";
 
     //Empty Voting Elements
     VOTEROWCONTAINERS[0].innerHTML = "";
@@ -455,6 +479,7 @@ function startResultsUI(playerNames, playerAnswers, votes, scoreChanges) {
 
     voteButtons = [];
     for (var i = 0; i < playerAnswers.length; i++) {
+        if(votes[i] === undefined) { votes[i] = 0; }
         var displayString = playerNames[i] + " (" + votes[i] + ")";
         voteButtons.push(createVoteButton(-1, displayString, playerAnswers[i]));
     }
@@ -473,6 +498,7 @@ function displayScoreChanges(scoreChanges) {
 }
 
 function displayScoreChangeForPlayer(index, magnitude) {
+    if(magnitude === null) { magnitude = 0; }
     var playerContainers = document.getElementsByClassName("player-box");
 
     const playerScoreChangeBox = document.createElement("div");

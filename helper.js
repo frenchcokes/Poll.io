@@ -2,7 +2,7 @@ class Room {
     constructor(ID) {
         this.ID = ID;
         this.players = [];
-        this.currentRound = 0;
+        this.currentRound = -1;
         this.responseCounter = [];
         this.scoreChanges = [];
         this.usedPromptIndexes = [];
@@ -10,6 +10,8 @@ class Room {
         this.responsesNeeded = 0;
 
         this.state= "MENU"; //MENU, PROMPT, VOTE, RESULT, FINALRESULTS
+
+        this.prompt = "NULL";
         //Settings
         this.promptTime = -1;
         this.voteTime = -1;
@@ -26,8 +28,10 @@ class Room {
         this.resetResponseVoteCounter();
     }
 
+    setPrompt(prompt) { this.prompt = prompt; }
+    getPrompt() { return this.prompt; } 
+
     setState(state) { 
-        this.responsesNeeded = this.players.length;
         this.state = state; 
     }
     getState() { return this.state; }
@@ -67,7 +71,7 @@ class Room {
 
     resetPlayerScores() { this.players.forEach(p => p.setScore(0));}
 
-    resetRoundCounter() { this.currentRound = 0; }
+    resetRoundCounter() { this.currentRound = -1; }
 
     resetUsedPromptIndexes() { this.usedPromptIndexes = []; }
 
@@ -102,7 +106,7 @@ class Room {
 
     responseAdded() { 
         this.currentResponses++; 
-        if(this.currentResponses == this.responsesNeeded) {
+        if(this.currentResponses == this.players.length) {
             this.currentResponses = 0;
             return true;
         }
@@ -151,7 +155,7 @@ class Player {
         this.name = name;
         this.score = score;
         this.RoomID = null;
-        this.answer = "Quarter Pounder with Cheese";
+        this.answer = "";
     }
 
     setRoomID(roomID) { this.RoomID = roomID; }
