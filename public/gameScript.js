@@ -481,7 +481,7 @@ function startResultsUI(playerNames, playerAnswers, votes, scoreChanges) {
     for (var i = 0; i < playerAnswers.length; i++) {
         if(votes[i] === undefined) { votes[i] = 0; }
         var displayString = playerNames[i] + " (" + votes[i] + ")";
-        voteButtons.push(createVoteButton(-1, displayString, playerAnswers[i]));
+        voteButtons.push(createVoteDisplayButton(displayString, playerAnswers[i]));
     }
     displayToRows(voteButtons, false);
 
@@ -513,6 +513,24 @@ function createVoteButton(idValue, textContent, promptTextContent) {
     const voteButton = document.createElement('div');
     voteButton.classList.add('vote-button');
     voteButton.setAttribute("id", idValue);
+    voteButton.style.backgroundColor = "#5149d3";
+
+    const voteButtonVotesText = document.createElement('div');
+    voteButtonVotesText.classList.add('vote-button-votes-text');
+    voteButtonVotesText.textContent = textContent;
+
+    const voteButtonPromptText = document.createElement('div');
+    voteButtonPromptText.classList.add('vote-button-prompt-text');
+    voteButtonPromptText.textContent = promptTextContent;
+
+    voteButton.appendChild(voteButtonVotesText);
+    voteButton.appendChild(voteButtonPromptText);
+    return voteButton;
+}
+
+function createVoteDisplayButton(textContent, promptTextContent) {
+    const voteButton = document.createElement('div');
+    voteButton.classList.add('vote-display-button');
     voteButton.style.backgroundColor = "#5149d3";
 
     const voteButtonVotesText = document.createElement('div');
