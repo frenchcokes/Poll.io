@@ -20,7 +20,7 @@ class Room {
 
         this.isPack1 = true;
         this.isPack2 = false;
-        this.isPack3 = false;
+        this.isPack3 = true;
 
         this.intervalID = null;
         this.time = 0;
