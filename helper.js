@@ -13,12 +13,12 @@ class Room {
 
         this.prompt = "NULL";
         //Settings
-        this.promptTime = -1;
-        this.voteTime = -1;
-        this.resultTime = -1;
-        this.rounds = -1;
+        this.promptTime = 15;
+        this.voteTime = 10;
+        this.resultTime = 3;
+        this.rounds = 3;
 
-        this.isPack1 = false;
+        this.isPack1 = true;
         this.isPack2 = false;
         this.isPack3 = false;
 

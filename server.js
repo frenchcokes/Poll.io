@@ -34,7 +34,10 @@ pack1Prompts = [];
 pack2Prompts = [];
 pack3Prompts = [];
 
-addPrompts();
+function main() {
+    addPrompts();
+}
+
 function addPrompts() {
     const fs = require('fs');
     const fileContent = fs.readFileSync('prompts.txt', 'utf8');
@@ -96,7 +99,6 @@ io.on('connection', (socket) => {
         }
         io.to(roomID).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has joined!" });
         updatePlayerButtons(roomID);
-
     });
 
     socket.on('disconnect', () => {
@@ -234,14 +236,7 @@ io.on('connection', (socket) => {
         rooms[roomID] = new Room(roomID);
         
         const room = rooms[roomID];
-        room.promptTime = 15;
-        room.voteTime = 10;
-        room.resultTime = 3;
-        room.rounds = 3;
 
-        room.isPack1 = true;
-        room.isPack2 = false;
-        room.isPack3 = false;
         socketMenuUpdate(socket, room);
 
         rooms[roomID].addPlayer(socket.player);
@@ -397,3 +392,5 @@ server.listen(PORT, '0.0.0.0', () => {
 });
 
 app.use(express.static('public'));
+
+main();
