@@ -1,5 +1,5 @@
-//const socket = io('polldotio.uw.r.appspot.com');
-const socket = io('localhost:3000');
+const socket = io('polldotio.uw.r.appspot.com');
+//const socket = io('localhost:3000');
 
 const GAMETITLETEXT = document.querySelector('.title');
 const OUTERCONTAINER = document.querySelector('.outer-container');
@@ -54,6 +54,10 @@ const FEEDBACKSENDBUTTON= document.getElementById("FEEDBACKSENDBUTTON");
 
 const CREDITSLINK = document.getElementById("CREDITSLINK");
 const TOSLINK = document.getElementById("TOSLINK");
+
+socket.on("connect", () => {
+    addMessageToChatbox("Connected to server!", "Server");
+});
 
 socket.on("chatboxMessageReceived", (dataJson) => {
     addMessageToChatbox(dataJson.message, dataJson.sender);
