@@ -9,25 +9,23 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 const path = require('path');
-const { setInterval } = require('timers');const { debug } = require('console');
-;
 
 const PORT = process.env.PORT || 3000;
 
 app.get('/', async(req, res) => {
-    res.sendFile(path.join(__dirname, "/public/game.html"));
+    res.sendFile(path.join(__dirname, "../public/game.html"));
 });
 
 app.get('/tos', async(req, res) => {
-    res.sendFile(path.join(__dirname, "/public/tos.html"));
+    res.sendFile(path.join(__dirname, "../public/tos.html"));
 });
 
 app.get('/credits', async(req, res) => {
-    res.sendFile(path.join(__dirname, "/public/credits.html"));
+    res.sendFile(path.join(__dirname, "../public/credits.html"));
 });
 
-baseName = "polldotio.uw.r.appspot.com";
-//baseName = "localhost:3000";
+//baseName = "polldotio.uw.r.appspot.com";
+baseName = "localhost:3000";
 
 const rooms = {};
 pack1Prompts = [];
@@ -40,7 +38,7 @@ function main() {
 
 function addPrompts() {
     const fs = require('fs');
-    const fileContent = fs.readFileSync('prompts.txt', 'utf8');
+    const fileContent = fs.readFileSync('./server/prompts.txt', 'utf8');
     const lines = fileContent.trim().split('\n');
     const arrays = lines.map((line) => JSON.parse(line));
 
@@ -256,8 +254,10 @@ io.on('connection', (socket) => {
 function startPrompt(game) {
     game.clearTimeInterval();
     startCountdown(game.getPromptTime(), "PROMPT", game);
-
     game.setState("PROMPT");
+
+    game.resetResponses();
+
     game.nextRound();
     var selectedPrompt = generateRandomPrompt(game);
     game.setPrompt(selectedPrompt);
@@ -267,7 +267,6 @@ function startPrompt(game) {
 function startVotes(game) {
     game.clearTimeInterval();
     startCountdown(game.getVoteTime(), "VOTE", game);
-
     game.setState("VOTE");
 
     game.resetResponses();
@@ -285,7 +284,6 @@ function startVotes(game) {
 function startResults(game) {
     game.clearTimeInterval();
     startCountdown(game.getResultTime(), "RESULT", game);
-
     game.setState("RESULT");
 
     game.resetScoreChanges();
