@@ -1,5 +1,5 @@
-const socket = io('polldotio.uw.r.appspot.com', {'sync disconnect on unload':true});
-//const socket = io('localhost:3000', {'sync disconnect on unload':true});
+//const socket = io('polldotio.uw.r.appspot.com', {'sync disconnect on unload':true});
+const socket = io('localhost:3000', {'sync disconnect on unload':true});
 
 const GAMETITLETEXT = document.querySelector('.title');
 const OUTERCONTAINER = document.querySelector('.outer-container');
@@ -59,36 +59,13 @@ socket.on("connect", () => {
     addMessageToChatbox("Connected to server!", "Server");
 });
 
-socket.on("chatboxMessageReceived", (dataJson) => {
-    addMessageToChatbox(dataJson.message, dataJson.sender);
-});
-
-socket.on("addLinks", (baseName) => {
-    addLinks(baseName);
-});
-
-socket.on("updatePlayerButtons", (dataJson) => {
-    updatePlayerButtons(dataJson.playerNames, dataJson.playerScores, dataJson.playerIndex);
+socket.on("startPrompt", (dataJson) => {
+    startPrompt(dataJson.prompt, dataJson.round, dataJson.maxRounds);
 });
 
 socket.on('successfulPromptSubmission', () => {
     MESSAGEFIELD.style.visibility = "hidden";
     MESSAGESEND.style.visibility = "hidden";
-});
-
-socket.on("sendToMenu", (roomID) => {
-    ROOMJOINCONTAINER.style.display = "none";
-    GAMEMENUCONTAINER.style.display = "block";
-    TITLETEXT.innerHTML = "Menu";
-    ROOMCODE.value = roomID;
-});
-
-socket.on("startPrompt", (dataJson) => {
-    startPrompt(dataJson.prompt, dataJson.round, dataJson.maxRounds);
-});
-
-socket.on("backToMenu", () => {
-    backToMenu();
 });
 
 socket.on("startVotes", (dataJson) => {
@@ -99,16 +76,39 @@ socket.on("voteResults", (dataJson) => {
     startResultsUI(dataJson.playerNames, dataJson.playerAnswers, dataJson.playerVotes, dataJson.scoreChanges);
 });
 
-socket.on("loop", (dataJson) => {
-    setRoundCountdown(dataJson.time);
-});
-
 socket.on("finalResults", (dataJson) => {
     startFinalResultsUI(dataJson.playerNames, dataJson.playerScores);
 });
 
+socket.on("updatePlayerButtons", (dataJson) => {
+    updatePlayerButtons(dataJson.playerNames, dataJson.playerScores, dataJson.playerIndex);
+});
+
 socket.on("menuUpdate", (dataJson) => {
     updateGameMenu(dataJson);
+});
+
+socket.on("backToMenu", () => {
+    backToMenu();
+});
+
+socket.on("sendToMenu", (roomID) => {
+    ROOMJOINCONTAINER.style.display = "none";
+    GAMEMENUCONTAINER.style.display = "block";
+    TITLETEXT.innerHTML = "Menu";
+    ROOMCODE.value = roomID;
+});
+
+socket.on("loop", (dataJson) => {
+    setRoundCountdown(dataJson.time);
+});
+
+socket.on("addLinks", (baseName) => {
+    addLinks(baseName);
+});
+
+socket.on("chatboxMessageReceived", (dataJson) => {
+    addMessageToChatbox(dataJson.message, dataJson.sender);
 });
 
 socket.on("emptyChatbox", () => {
@@ -204,29 +204,6 @@ function startPrompt(prompt, round, maxRounds) {
     TITLETEXT.innerHTML = "Write an answer!";
 }
 
-function startPromptLateJoin(prompt, round, maxRounds) {
-    hideAllGameElements();
-
-    var playerBoxes = document.getElementsByClassName("player-box");
-    for (var i = 0; i < playerBoxes.length; i++) {
-        var toRemove = playerBoxes[i].getElementsByClassName("player-score-change-box");
-        while(toRemove.length > 0) {
-            playerBoxes[i].removeChild(toRemove[0]);
-        }
-    }
-
-    MAINGAMEPLAY.style.display = "block";
-    ROUNDDISPLAYTEXT.innerHTML = "Round " + (round + 1) + "/" + maxRounds;
-    GAMEMENUCONTAINER.style.display = "none";
-    PROMPTTEXT.style.display = "flex";
-    VOTESCONTAINER.style.display = "flex";
-    MESSAGECONTAINER.style.display = "flex";
-
-    PROMPTTEXT.innerHTML = prompt;
-
-    TITLETEXT.innerHTML = "Write an answer!";
-}
-
 function setRoundCountdown(roundTime) {
     ROUNDTIMERTEXT.textContent = roundTime;
 }
@@ -274,7 +251,6 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
 
     }
 
-    //
     MESSAGESEND.addEventListener("click", function() {
         attemptToSend();
     });
