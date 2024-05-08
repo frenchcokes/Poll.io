@@ -24,8 +24,8 @@ app.get('/credits', async(req, res) => {
     res.sendFile(path.join(__dirname, "../public/credits.html"));
 });
 
-//baseName = "polldotio.uw.r.appspot.com";
-baseName = "localhost:3000";
+baseName = "polldotio-422703.uw.r.appspot.com";
+//baseName = "localhost:3000";
 
 const rooms = {};
 pack1Prompts = [];

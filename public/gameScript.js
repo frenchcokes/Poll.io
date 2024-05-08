@@ -1,5 +1,5 @@
-//const socket = io('polldotio.uw.r.appspot.com', {'sync disconnect on unload':true});
-const socket = io('localhost:3000', {'sync disconnect on unload':true});
+const socket = io('polldotio-422703.uw.r.appspot.com', {'sync disconnect on unload':true});
+//const socket = io('localhost:3000', {'sync disconnect on unload':true});
 
 const GAMETITLETEXT = document.querySelector('.title');
 const OUTERCONTAINER = document.querySelector('.outer-container');
