@@ -116,6 +116,12 @@ socket.on("backToMenu", () => {
     backToMenu();
 });
 
+socket.on("startJoin", () => {
+    ROOMJOINCONTAINER.style.display = "block";
+    GAMEMENUCONTAINER.style.display = "none";
+    PLAYERSCONTAINER.innerHTML = '';
+});
+
 socket.on("menuUpdate", (dataJson) => {
     updateGameMenu(dataJson);
 });
@@ -245,7 +251,6 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex, leaderIndex
     const x = playerNames.length;
 
     for (let i = 0; i < x; i++) {
-
         const playerBoxDiv = document.createElement('div');
         playerBoxDiv.classList.add('player-box');
 
@@ -270,6 +275,24 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex, leaderIndex
             const leaderIcon = document.createElement('div');
             leaderIcon.classList.add('leader-icon');
             playerBoxDiv.appendChild(leaderIcon);
+        }
+
+        if((playerIndex == leaderIndex) && (i != leaderIndex)) {
+            const kickButton = document.createElement('div');
+            kickButton.classList.add('kick-button');
+            kickButton.innerText = "-";
+            kickButton.addEventListener("click", function() {
+                socket.emit("kickPlayer", i);
+            });
+            playerBoxDiv.appendChild(kickButton);
+
+            const promoteButton = document.createElement('div');
+            promoteButton.classList.add('promote-button');
+            promoteButton.innerText = "+";
+            promoteButton.addEventListener("click", function() {
+                socket.emit("promotePlayer", i);
+            });
+            playerBoxDiv.appendChild(promoteButton);
         }
 
         playerBoxDiv.appendChild(playerTitleDiv);

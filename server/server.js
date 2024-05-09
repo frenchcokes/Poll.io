@@ -217,6 +217,50 @@ io.on('connection', (socket) => {
         io.to(socket.player.getRoomID()).emit('menuUpdate', data);
     });
 
+    socket.on("kickPlayer", (playerIndex) => {
+        if(socket.player === null) return;
+        if(socket.player.getLeader() === false) return;
+        
+        const room = rooms[socket.player.getRoomID()];
+
+        const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(room.getID()));
+        const leavingSocket = io.sockets.sockets.get(socketsInRoom[playerIndex]);
+        leavingSocket.emit("startJoin", () => {});
+        leavingSocket.emit("chatboxMessageReceived", { sender: "Server", message: "You have been kicked from the room."});
+        leavingSocket.player = null;
+        leavingSocket.leave(room.getID());
+        io.to(socket.player.getRoomID()).emit("chatboxMessageReceived", { sender: "Server", message: room.getPlayerNames()[playerIndex] + " was kicked."});
+        room.removePlayer(room.getPlayers()[playerIndex]);
+
+        updatePlayerButtons(socket.player.getRoomID());
+    });
+
+    socket.on("promotePlayer", (playerIndex) => {
+        if(socket.player === null) return;
+        if(socket.player.getLeader() === false) return;
+
+        const room = rooms[socket.player.getRoomID()];
+        socket.player.setLeader(false);
+        room.getPlayers()[playerIndex].setLeader(true);
+
+        const sockets = Array.from(io.sockets.adapter.rooms.get(socket.player.getRoomID()));
+        sockets.forEach((socketID) => {
+            const socket = io.sockets.sockets.get(socketID);
+            
+            if(socket.player.getLeader() === false ) { 
+                socket.emit('sendToMenu', { ID: room.getID(), isLeader: false });
+                return; 
+            }
+            else {
+                socket.emit('sendToMenu', { ID: room.getID(), isLeader: true });
+            }
+            
+        });
+        io.to(socket.player.getRoomID()).emit("chatboxMessageReceived", { sender: "Server", message: "Promoted " + room.getPlayerNames()[playerIndex] + " to leader."});
+
+        updatePlayerButtons(socket.player.getRoomID());
+    });
+
     socket.on("createRoom", (playerName) => {
         if(playerName.length > 8) { 
             socket.emit('chatboxMessageReceived', { sender: "Server", message: "Name must be less than 8 characters."});
