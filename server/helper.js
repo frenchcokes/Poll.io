@@ -156,6 +156,7 @@ class Player {
         this.score = score;
         this.RoomID = null;
         this.answer = "";
+        this.isLeader = false;
     }
 
     setRoomID(roomID) { this.RoomID = roomID; }
@@ -173,6 +174,10 @@ class Player {
     addScore(amount) { this.score += amount; }
 
     setScore(amount) { this.score = amount; }
+
+    getLeader() { return this.isLeader; }
+
+    setLeader(isLeader) { this.isLeader = isLeader; }
 }
 
 module.exports = { Room, Player };

@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
         const currentState = room.getState();
         switch(currentState) {
             case "MENU":
-                socket.emit('sendToMenu', roomID);                
+                socket.emit('sendToMenu', { ID: roomID, isLeader: false } );                
                 socketMenuUpdate(socket, room);
                 break;
             case "PROMPT":
@@ -105,6 +105,23 @@ io.on('connection', (socket) => {
         room.removePlayer(socket.player);
         if(room.size() === 0) {
             delete rooms[room.getID()];
+        }
+        else if (socket.player.getLeader() === true) {
+            room.getPlayers()[0].setLeader(true);
+
+            const sockets = Array.from(io.sockets.adapter.rooms.get(room.getID()));
+            sockets.forEach((socketID) => {
+                const socket = io.sockets.sockets.get(socketID);
+                
+                if(socket.player.getLeader() === false ) { 
+                    socket.emit('sendToMenu', { ID: room.getID(), isLeader: false });
+                    return; 
+                }
+                else {
+                    socket.emit('sendToMenu', { ID: room.getID(), isLeader: true });
+                }
+                
+            });
         }
         io.to(room.getID()).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has left!"});
         updatePlayerButtons(room.getID());
@@ -238,8 +255,9 @@ io.on('connection', (socket) => {
         socketMenuUpdate(socket, room);
 
         rooms[roomID].addPlayer(socket.player);
+        socket.player.setLeader(true);
 
-        socket.emit('sendToMenu', roomID);
+        socket.emit('sendToMenu', { ID: roomID, isLeader: true });
         updatePlayerButtons(roomID);
 
         socket.emit("chatboxMessageReceived", { sender: "Server", message: "Room created! Room code: " + roomID })
@@ -324,7 +342,7 @@ function updatePlayerButtons(roomID) {
     var counter = 0;
     for (const socketID of socketsInRoom) {
         const socket = io.sockets.sockets.get(socketID);
-        socket.emit('updatePlayerButtons', { playerNames: rooms[roomID].getPlayerNames(), playerScores: rooms[roomID].getPlayerScores(), playerIndex : counter});
+        socket.emit('updatePlayerButtons', { playerNames: rooms[roomID].getPlayerNames(), playerScores: rooms[roomID].getPlayerScores(), playerIndex : counter, leaderIndex : rooms[roomID].getPlayers().findIndex(p => p.getLeader())});
         counter++;
     }
 }

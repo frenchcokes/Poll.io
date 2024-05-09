@@ -81,22 +81,43 @@ socket.on("finalResults", (dataJson) => {
 });
 
 socket.on("updatePlayerButtons", (dataJson) => {
-    updatePlayerButtons(dataJson.playerNames, dataJson.playerScores, dataJson.playerIndex);
+    updatePlayerButtons(dataJson.playerNames, dataJson.playerScores, dataJson.playerIndex, dataJson.leaderIndex);
 });
 
-socket.on("menuUpdate", (dataJson) => {
-    updateGameMenu(dataJson);
+socket.on("sendToMenu", (dataJson) => {
+    ROOMJOINCONTAINER.style.display = "none";
+    GAMEMENUCONTAINER.style.display = "block";
+    TITLETEXT.innerHTML = "Menu";
+    ROOMCODE.value = dataJson.ID;
+
+    if(dataJson.isLeader == false) {
+        GAMESTARTBUTTON.style.display = "none";
+        PROMPTTIME.disabled = true;
+        VOTETIME.disabled = true;
+        RESULTTIME.disabled = true;
+        ROUNDS.disabled = true;
+        PACK1.disabled = true;
+        PACK2.disabled = true;
+        PACK3.disabled = true;
+    }
+    else {
+        GAMESTARTBUTTON.style.display = "block";
+        PROMPTTIME.disabled = false;
+        VOTETIME.disabled = false;
+        RESULTTIME.disabled = false;
+        ROUNDS.disabled = false;
+        PACK1.disabled = false;
+        PACK2.disabled = false;
+        PACK3.disabled = false;
+    }
 });
 
 socket.on("backToMenu", () => {
     backToMenu();
 });
 
-socket.on("sendToMenu", (roomID) => {
-    ROOMJOINCONTAINER.style.display = "none";
-    GAMEMENUCONTAINER.style.display = "block";
-    TITLETEXT.innerHTML = "Menu";
-    ROOMCODE.value = roomID;
+socket.on("menuUpdate", (dataJson) => {
+    updateGameMenu(dataJson);
 });
 
 socket.on("loop", (dataJson) => {
@@ -219,7 +240,7 @@ function updateGameMenu(jsonParse) {
     PACK3.checked = jsonParse.isPack3;
 }
 
-function updatePlayerButtons(playerNames, playerScores, playerIndex) {
+function updatePlayerButtons(playerNames, playerScores, playerIndex, leaderIndex) {
     PLAYERSCONTAINER.innerHTML = ''; //CLEARS CHILDREN
     const x = playerNames.length;
 
@@ -243,6 +264,12 @@ function updatePlayerButtons(playerNames, playerScores, playerIndex) {
         }
         else {
             playerBoxDiv.style.backgroundColor = "#5149d3";
+        }
+
+        if(i == leaderIndex) {
+            const leaderIcon = document.createElement('div');
+            leaderIcon.classList.add('leader-icon');
+            playerBoxDiv.appendChild(leaderIcon);
         }
 
         playerBoxDiv.appendChild(playerTitleDiv);
