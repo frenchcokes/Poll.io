@@ -393,6 +393,7 @@ function startResults(game) {
 function resultsScreen(game) {
     game.setState("FINALRESULTS");
 
+    if(io.sockets.adapter.rooms.get(game.getID()) === undefined) { return; }
     const sockets = Array.from(io.sockets.adapter.rooms.get(game.getID()));
     sockets.forEach((socketID) => {
         const socket = io.sockets.sockets.get(socketID);
