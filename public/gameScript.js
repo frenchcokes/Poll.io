@@ -77,7 +77,16 @@ socket.on("voteResults", (dataJson) => {
 });
 
 socket.on("finalResults", (dataJson) => {
-    startFinalResultsUI(dataJson.playerNames, dataJson.playerScores);
+    startFinalResultsUI(dataJson.playerNames, dataJson.playerScores, dataJson.isLeader);
+});
+
+socket.on("updateFinalResultsButton", (isLeader) => {
+    if(isLeader === false) {
+        NEXTGAMEBUTTON.disabled = true;
+    }
+    else {
+        NEXTGAMEBUTTON.disabled = false;
+    }
 });
 
 socket.on("updatePlayerButtons", (dataJson) => {
@@ -116,10 +125,15 @@ socket.on("backToMenu", () => {
     backToMenu();
 });
 
-socket.on("startJoin", () => {
+socket.on("startLobby", () => {
     ROOMJOINCONTAINER.style.display = "block";
     GAMEMENUCONTAINER.style.display = "none";
+    MAINGAMEPLAY.style.display = "none";
     PLAYERSCONTAINER.innerHTML = '';
+
+    ROUNDDISPLAYTEXT.innerHTML = "";
+    TITLETEXT.innerHTML = "";
+    ROUNDTIMERTEXT.innerHTML = "";
 });
 
 socket.on("menuUpdate", (dataJson) => {
@@ -155,7 +169,7 @@ function backToMenu() {
     TITLETEXT.innerHTML = "Menu";
 }
 
-function startFinalResultsUI(playerNames, playerScores) {
+function startFinalResultsUI(playerNames, playerScores, isLeader) {
     var playerBoxes = document.getElementsByClassName("player-box");
     for (var i = 0; i < playerBoxes.length; i++) {
         var toRemove = playerBoxes[i].getElementsByClassName("player-score-change-box")[0];
@@ -192,6 +206,14 @@ function startFinalResultsUI(playerNames, playerScores) {
         RESULTSTEXT.appendChild(row);
         RESULTSTEXT.appendChild(brElem);
     }
+
+    if(isLeader === false) {
+        NEXTGAMEBUTTON.disabled = true;
+    } 
+    else {
+        NEXTGAMEBUTTON.disabled = false;
+    }
+
     TITLETEXT.innerHTML = "Final Results";
 }
 

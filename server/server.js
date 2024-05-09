@@ -92,7 +92,7 @@ io.on('connection', (socket) => {
                 socket.emit('voteResults', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), playerVotes: game.getVoteResponseCounter(), scoreChanges: game.getScoreChanges() });
                 break;
             case "FINALRESULTS":
-                socket.emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores() });
+                socket.emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores(), isLeader: false });
                 break;
         }
         io.to(roomID).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has joined!" });
@@ -199,6 +199,20 @@ io.on('connection', (socket) => {
         room.setState("MENU");
         updatePlayerButtons(socket.player.getRoomID());
         io.to(socket.player.getRoomID()).emit('backToMenu');
+
+        const sockets = Array.from(io.sockets.adapter.rooms.get(room.getID()));
+        sockets.forEach((socketID) => {
+            const socket = io.sockets.sockets.get(socketID);
+            
+            if(socket.player.getLeader() === false ) { 
+                socket.emit('sendToMenu', { ID: room.getID(), isLeader: false });
+                return; 
+            }
+            else {
+                socket.emit('sendToMenu', { ID: room.getID(), isLeader: true });
+            }
+            
+        });
     });
 
     socket.on('menuUpdate', (data) => {
@@ -225,7 +239,7 @@ io.on('connection', (socket) => {
 
         const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(room.getID()));
         const leavingSocket = io.sockets.sockets.get(socketsInRoom[playerIndex]);
-        leavingSocket.emit("startJoin", () => {});
+        leavingSocket.emit("startLobby", () => {});
         leavingSocket.emit("chatboxMessageReceived", { sender: "Server", message: "You have been kicked from the room."});
         leavingSocket.player = null;
         leavingSocket.leave(room.getID());
@@ -244,20 +258,33 @@ io.on('connection', (socket) => {
         room.getPlayers()[playerIndex].setLeader(true);
 
         const sockets = Array.from(io.sockets.adapter.rooms.get(socket.player.getRoomID()));
-        sockets.forEach((socketID) => {
-            const socket = io.sockets.sockets.get(socketID);
-            
-            if(socket.player.getLeader() === false ) { 
-                socket.emit('sendToMenu', { ID: room.getID(), isLeader: false });
-                return; 
-            }
-            else {
-                socket.emit('sendToMenu', { ID: room.getID(), isLeader: true });
-            }
-            
-        });
+        
+        if(room.getState() === "MENU") {
+            sockets.forEach((socketID) => {
+                const socket = io.sockets.sockets.get(socketID);
+                
+                if(socket.player.getLeader() === false ) { 
+                    socket.emit('sendToMenu', { ID: room.getID(), isLeader: false });
+                }
+                else {
+                    socket.emit('sendToMenu', { ID: room.getID(), isLeader: true });
+                }
+            });
+        }
+        else if(room.getState() === "FINALRESULTS") {
+            sockets.forEach((socketID) => {
+                const socket = io.sockets.sockets.get(socketID);
+                
+                if(socket.player.getLeader() === false ) { 
+                    socket.emit('updateFinalResultsButton', (false) );
+                }
+                else {
+                    socket.emit('updateFinalResultsButton', (true) );
+                }
+            });
+        }
         io.to(socket.player.getRoomID()).emit("chatboxMessageReceived", { sender: "Server", message: "Promoted " + room.getPlayerNames()[playerIndex] + " to leader."});
-
+        
         updatePlayerButtons(socket.player.getRoomID());
     });
 
@@ -334,6 +361,7 @@ function startVotes(game) {
     game.resetResponses();
     game.resetResponseVoteCounter();
 
+    if(io.sockets.adapter.rooms.get(game.getID()) === undefined) { return; }
     const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(game.getID()));
     var counter = 0;
     socketsInRoom.forEach((socketID) => {
@@ -364,7 +392,17 @@ function startResults(game) {
 
 function resultsScreen(game) {
     game.setState("FINALRESULTS");
-    io.to(game.getID()).emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores() });
+
+    const sockets = Array.from(io.sockets.adapter.rooms.get(game.getID()));
+    sockets.forEach((socketID) => {
+        const socket = io.sockets.sockets.get(socketID);
+        if(socket.player.getLeader() === false ) { 
+            socket.emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores(), isLeader: false });
+        }
+        else {
+            socket.emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores(), isLeader: true });
+        }
+    });
 }
 
 function socketMenuUpdate(socket, room) {

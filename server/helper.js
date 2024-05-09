@@ -19,8 +19,8 @@ class Room {
         this.rounds = 3;
 
         this.isPack1 = true;
-        this.isPack2 = false;
-        this.isPack3 = true;
+        this.isPack2 = true;
+        this.isPack3 = false;
 
         this.intervalID = null;
         this.time = 0;
