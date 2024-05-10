@@ -411,9 +411,7 @@ function addListenersToMenu() {
     VOTESEND.addEventListener("click", function() {
         if(selectedVoteButton !== -1) {
             socket.emit("voteSubmission", selectedVoteButton);
-            
-            VOTEROWCONTAINERS[0].innerHTML = "";
-            VOTEROWCONTAINERS[1].innerHTML = "";
+            selectedVoteButton = -100;
             VOTESEND.style.visibility = "hidden";
         }
     });
@@ -506,6 +504,7 @@ function startVoteUI(playerNames, playerAnswers, excludeIndex) {
     for (var i = 0; i < divs.length; i++) {
         (function(div) {
             div.addEventListener('click', function() {
+                if(selectedVoteButton === -100) { return; } //Prevents double voting (client side only)
                 if(selectedVoteButton === -1) {
                     div.style.backgroundColor = "#42187e";
                     selectedVoteButton = div.id;
