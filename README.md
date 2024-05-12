@@ -39,3 +39,7 @@ npm start
 ```
 4. View it in your browser at:
 localhost:3000
+
+## Improvements
+- Make UI better (With React or something)
+- Join public lobbies
