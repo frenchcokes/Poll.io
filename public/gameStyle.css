@@ -207,6 +207,8 @@
     margin-right: 10px;
 }
 .select-class {
+    width: 60px;
+    height: 30px;
     font-size: 20px;
 }
 .checkbox-label {
