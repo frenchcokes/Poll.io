@@ -109,19 +109,21 @@ io.on('connection', (socket) => {
         else if (socket.player.getLeader() === true) {
             room.getPlayers()[0].setLeader(true);
 
-            const sockets = Array.from(io.sockets.adapter.rooms.get(room.getID()));
-            sockets.forEach((socketID) => {
-                const socket = io.sockets.sockets.get(socketID);
-                
-                if(socket.player.getLeader() === false ) { 
-                    socket.emit('sendToMenu', { ID: room.getID(), isLeader: false });
-                    return; 
-                }
-                else {
-                    socket.emit('sendToMenu', { ID: room.getID(), isLeader: true });
-                }
-                
-            });
+            if(room.getState() === "MENU") {
+                const sockets = Array.from(io.sockets.adapter.rooms.get(room.getID()));
+                sockets.forEach((socketID) => {
+                    const socket = io.sockets.sockets.get(socketID);
+                    
+                    if(socket.player.getLeader() === false ) { 
+                        socket.emit('sendToMenu', { ID: room.getID(), isLeader: false });
+                        return; 
+                    }
+                    else {
+                        socket.emit('sendToMenu', { ID: room.getID(), isLeader: true });
+                    }
+                    
+                });
+            }
         }
         io.to(room.getID()).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has left!"});
         updatePlayerButtons(room.getID());
