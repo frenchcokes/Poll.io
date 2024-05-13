@@ -60,7 +60,7 @@ socket.on("connect", () => {
 });
 
 socket.on("startPrompt", (dataJson) => {
-    startPrompt(dataJson.prompt, dataJson.round, dataJson.maxRounds);
+    startPromptUI(dataJson.prompt, dataJson.round, dataJson.maxRounds);
 });
 
 socket.on('successfulPromptSubmission', () => {
@@ -228,7 +228,7 @@ function addMessageToChatbox(messageText, sender) {
     CHATBOXMESSAGESCONTAINER.scrollTop = CHATBOXMESSAGESCONTAINER.scrollHeight;
 }
 
-function startPrompt(prompt, round, maxRounds) {
+function startPromptUI(prompt, round, maxRounds) {
     hideAllGameElements();
 
     var playerBoxes = document.getElementsByClassName("player-box");
@@ -250,7 +250,11 @@ function startPrompt(prompt, round, maxRounds) {
     MESSAGEFIELD.style.visibility = "visible";
     MESSAGESEND.style.visibility = "visible";
 
-    TITLETEXT.innerHTML = "Write an answer!";
+    if(round === maxRounds - 1) {
+        TITLETEXT.innerHTML = "Final Answer! (2x points)";
+    } else {
+        TITLETEXT.innerHTML = "Answer!";
+    }
 }
 
 function setRoundCountdown(roundTime) {
@@ -522,7 +526,12 @@ function startVoteUI(playerNames, playerAnswers, excludeIndex) {
         })(divs[i]);
     }
     MESSAGECONTAINER.style.display = "none";
-    TITLETEXT.innerHTML = "Vote!";
+
+    if(TITLETEXT.innerHTML === "Final Answer! (2x points)") {
+        TITLETEXT.innerHTML = "Final Vote! (2x points)";
+    } else {
+        TITLETEXT.innerHTML = "Vote!";
+    }
 }
 
 function startResultsUI(playerNames, playerAnswers, votes, scoreChanges) {
@@ -540,7 +549,11 @@ function startResultsUI(playerNames, playerAnswers, votes, scoreChanges) {
 
     displayScoreChanges(scoreChanges);
 
-    TITLETEXT.innerHTML = "Results!";
+    if(TITLETEXT.innerHTML === "Final Vote! (2x points)") {
+        TITLETEXT.innerHTML = "Final Results! (2x points)";
+    } else {
+        TITLETEXT.innerHTML = "Results!";
+    }
 }
 
 //HELPER FUNCTIONS

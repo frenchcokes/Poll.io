@@ -408,10 +408,19 @@ function startResults(game) {
 
     const players = game.getPlayers();
     const votes = game.getPlayerVotes();
-    for (var i = 0; i < players.length; i++) {
-        if(votes[i] === undefined) { votes[i] = 0; }
-        players[i].addScore(votes[i] * 1000);
-        game.addScoreChangeToIndex(i, votes[i] * 1000);
+    if(game.getCurrentRound() === (game.getRounds() - 1)) { 
+        for (var i = 0; i < players.length; i++) {
+            if(votes[i] === undefined) { votes[i] = 0; }
+            players[i].addScore(votes[i] * 2000);
+            game.addScoreChangeToIndex(i, votes[i] * 2000);
+        }
+    }
+    else {
+        for (var i = 0; i < players.length; i++) {
+            if(votes[i] === undefined) { votes[i] = 0; }
+            players[i].addScore(votes[i] * 1000);
+            game.addScoreChangeToIndex(i, votes[i] * 1000);
+        }
     }
     updatePlayerButtons(game.getID());
 
