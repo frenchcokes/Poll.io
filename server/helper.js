@@ -6,8 +6,6 @@ class Room {
         this.responseCounter = [];
         this.scoreChanges = [];
         this.usedPromptIndexes = [];
-        this.currentResponses = 0;
-        this.responsesNeeded = 0;
 
         this.state= "MENU"; //MENU, PROMPT, VOTE, RESULT, FINALRESULTS
 
@@ -90,7 +88,9 @@ class Room {
     }
 
     resetResponses() {
-        this.currentResponses = 0;
+        for (let i = 0; i < this.players.length; i++) {
+            this.players[i].setResponded(false);
+        }
     }
 
     addScoreChangeToIndex(index, amount) {
@@ -104,15 +104,20 @@ class Room {
     resetUsedPromptIndexes() { this.usedPromptIndexes = []; }
     usedPromptIndexes() { return this.usedPromptIndexes; }
 
-    responseAdded() { 
-        this.currentResponses++; 
-        if(this.currentResponses == this.players.length) {
-            this.currentResponses = 0;
-            return true;
+    responseAdded(playerName) { 
+        for (let i = 0; i < this.players.length; i++) {
+            if(this.players[i].getName() == playerName) {
+                this.players[i].setResponded(true);
+                break;
+            }
         }
-        else {
-            return false;
+
+        for (let i = 0; i < this.players.length; i++) {
+            if(this.players[i].isResponded() == false) {
+                return false;
+            }
         }
+        return true;
     }
 
     getCurrentRound() { return this.currentRound; }
@@ -157,6 +162,15 @@ class Player {
         this.RoomID = null;
         this.answer = "";
         this.isLeader = false;
+        this.responded = false;
+    }
+
+    isResponded() {
+        return this.responded;
+    }
+
+    setResponded(value) {
+        this.responded = value;
     }
 
     setRoomID(roomID) { this.RoomID = roomID; }

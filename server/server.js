@@ -125,6 +125,19 @@ io.on('connection', (socket) => {
                 });
             }
         }
+        if(room.getState() === "PROMPT") {
+            const isAllResponses = rooms[socket.player.getRoomID()].responseAdded(socket.player.getName());
+            if(isAllResponses === true) {
+                startVotes(rooms[socket.player.getRoomID()]);
+            }
+        }
+        else if (room.getState() === "VOTE") {
+            const isAllResponses = rooms[socket.player.getRoomID()].responseAdded(socket.player.getName());
+            if(isAllResponses === true) {
+                startResults(rooms[socket.player.getRoomID()]);
+            }
+        }
+
         io.to(room.getID()).emit("chatboxMessageReceived", { sender: "Server", message: socket.player.name + " has left!"});
         updatePlayerButtons(room.getID());
     });
@@ -173,7 +186,7 @@ io.on('connection', (socket) => {
 
         socket.emit('successfulPromptSubmission');
         socket.player.answer = prompt;
-        const isAllResponses = rooms[socket.player.getRoomID()].responseAdded();
+        const isAllResponses = rooms[socket.player.getRoomID()].responseAdded(socket.player.getName());
 
         if(isAllResponses === true) {
             startVotes(rooms[socket.player.getRoomID()]);
@@ -183,7 +196,7 @@ io.on('connection', (socket) => {
     socket.on('voteSubmission', (voteIndex) => {
         if(socket.player === null) return;
         rooms[socket.player.getRoomID()].addVoteToCounterIndex(voteIndex);
-        const isAllResponses = rooms[socket.player.getRoomID()].responseAdded();
+        const isAllResponses = rooms[socket.player.getRoomID()].responseAdded(socket.player.getName());
 
         if(isAllResponses === true) {
             startResults(rooms[socket.player.getRoomID()]);
@@ -247,6 +260,19 @@ io.on('connection', (socket) => {
         leavingSocket.leave(room.getID());
         io.to(socket.player.getRoomID()).emit("chatboxMessageReceived", { sender: "Server", message: room.getPlayerNames()[playerIndex] + " was kicked."});
         room.removePlayer(room.getPlayers()[playerIndex]);
+
+        if(room.getState() === "PROMPT") {
+            const isAllResponses = rooms[socket.player.getRoomID()].responseAdded(socket.player.getName());
+            if(isAllResponses === true) {
+                startVotes(rooms[socket.player.getRoomID()]);
+            }
+        }
+        else if (room.getState() === "VOTE") {
+            const isAllResponses = rooms[socket.player.getRoomID()].responseAdded(socket.player.getName());
+            if(isAllResponses === true) {
+                startResults(rooms[socket.player.getRoomID()]);
+            }
+        }
 
         updatePlayerButtons(socket.player.getRoomID());
     });
