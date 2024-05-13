@@ -89,7 +89,7 @@ io.on('connection', (socket) => {
                 socket.emit('startVotes', { playerNames: room.getPlayerNames(), playerAnswers: room.getPlayerAnswers(), excludeIndex: room.getPlayerAnswers().length - 1 });
                 break;
             case "RESULT":
-                socket.emit('voteResults', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), playerVotes: game.getVoteResponseCounter(), scoreChanges: game.getScoreChanges() });
+                socket.emit('voteResults', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), playerVotes: game.getPlayerVotes(), scoreChanges: game.getScoreChanges() });
                 break;
             case "FINALRESULTS":
                 socket.emit('finalResults', { playerNames: game.getPlayerNames(), playerScores: game.getPlayerScores(), isLeader: false });
@@ -193,9 +193,9 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('voteSubmission', (voteIndex) => {
+    socket.on('voteSubmission', (playerName) => {
         if(socket.player === null) return;
-        rooms[socket.player.getRoomID()].addVoteToCounterIndex(voteIndex);
+        rooms[socket.player.getRoomID()].addVoteToPlayer(playerName);
         const isAllResponses = rooms[socket.player.getRoomID()].responseAdded(socket.player.getName());
 
         if(isAllResponses === true) {
@@ -386,8 +386,8 @@ function startVotes(game) {
     startCountdown(game.getVoteTime(), "VOTE", game);
     game.setState("VOTE");
 
+    game.resetPlayerVotes();
     game.resetResponses();
-    game.resetResponseVoteCounter();
 
     if(io.sockets.adapter.rooms.get(game.getID()) === undefined) { return; }
     const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(game.getID()));
@@ -407,7 +407,7 @@ function startResults(game) {
     game.resetScoreChanges();
 
     const players = game.getPlayers();
-    const votes = game.getVoteResponseCounter();
+    const votes = game.getPlayerVotes();
     for (var i = 0; i < players.length; i++) {
         if(votes[i] === undefined) { votes[i] = 0; }
         players[i].addScore(votes[i] * 1000);
@@ -415,7 +415,7 @@ function startResults(game) {
     }
     updatePlayerButtons(game.getID());
 
-    io.to(game.getID()).emit('voteResults', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), playerVotes: game.getVoteResponseCounter(), scoreChanges: game.getScoreChanges() });
+    io.to(game.getID()).emit('voteResults', { playerNames: game.getPlayerNames(), playerAnswers: game.getPlayerAnswers(), playerVotes: game.getPlayerVotes(), scoreChanges: game.getScoreChanges() });
 }
 
 function resultsScreen(game) {

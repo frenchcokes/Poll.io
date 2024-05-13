@@ -494,7 +494,7 @@ function startVoteUI(playerNames, playerAnswers, excludeIndex) {
     buttons = [];
     for (var i = 0; i < numberOfButtons; i++) {
         if(i !== excludeIndex) {
-            buttons.push(createVoteButton(i, playerAnswers[i]));
+            buttons.push(createVoteButton(playerNames[i], playerAnswers[i]));
         }
     }
 
@@ -562,10 +562,10 @@ function displayScoreChangeForPlayer(index, magnitude) {
     playerContainers[index].appendChild(playerScoreChangeBox);
 }
 
-function createVoteButton(idValue, promptTextContent) {
+function createVoteButton(playerName, promptTextContent) {
     const voteButton = document.createElement('div');
     voteButton.classList.add('vote-button');
-    voteButton.setAttribute("id", idValue);
+    voteButton.setAttribute("id", playerName);
     voteButton.style.backgroundColor = "#5149d3";
 
     const voteButtonPromptText = document.createElement('div');

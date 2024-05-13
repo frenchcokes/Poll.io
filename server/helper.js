@@ -3,11 +3,10 @@ class Room {
         this.ID = ID;
         this.players = [];
         this.currentRound = -1;
-        this.responseCounter = [];
         this.scoreChanges = [];
         this.usedPromptIndexes = [];
 
-        this.state= "MENU"; //MENU, PROMPT, VOTE, RESULT, FINALRESULTS
+        this.state = "MENU"; //MENU, PROMPT, VOTE, RESULT, FINALRESULTS
 
         this.prompt = "NULL";
         //Settings
@@ -23,15 +22,13 @@ class Room {
         this.intervalID = null;
         this.time = 0;
 
-        this.resetResponseVoteCounter();
+        this.resetPlayerVotes();
     }
 
     setPrompt(prompt) { this.prompt = prompt; }
     getPrompt() { return this.prompt; } 
 
-    setState(state) { 
-        this.state = state; 
-    }
+    setState(state) { this.state = state; }
     getState() { return this.state; }
 
     addPlayer(player) {
@@ -49,7 +46,7 @@ class Room {
 
     nextRound() {
         this.currentRound++;
-        this.resetResponseVoteCounter();
+        this.resetPlayerVotes();
         this.resetScoreChanges();
         this.resetPlayerAnswers();
     }
@@ -73,11 +70,8 @@ class Room {
 
     resetUsedPromptIndexes() { this.usedPromptIndexes = []; }
 
-    getVoteResponseCounter() { return this.responseCounter; }
-    
-    resetResponseVoteCounter() {
-        const length = this.players.length;
-        this.responseCounter = Array.from({ length }, () => 0);
+    getPlayerVotes() { 
+        return this.players.map(p => p.getVotes()); 
     }
 
     getScoreChanges() { return this.scoreChanges; }
@@ -93,11 +87,24 @@ class Room {
         }
     }
 
+    resetPlayerVotes() {
+        for (let i = 0; i < this.players.length; i++) {
+            this.players[i].resetVotes();
+        }
+    }
+
     addScoreChangeToIndex(index, amount) {
         this.scoreChanges[index] = this.scoreChanges[index] + amount;
     }
 
-    addVoteToCounterIndex(index) { this.responseCounter[index]++; }
+    addVoteToPlayer(playerName) {
+        for (let i = 0; i < this.players.length; i++) {
+            if(this.players[i].getName() == playerName) {
+                this.players[i].addVote();
+                break;
+            }
+        }
+    }
 
     addUsedPromptIndex(index) { this.usedPromptIndexes.push(index); }
     isPromptIndexUsed(index) { return this.usedPromptIndexes.includes(index); }
@@ -163,7 +170,14 @@ class Player {
         this.answer = "";
         this.isLeader = false;
         this.responded = false;
+        this.votes = 0;
     }
+
+    resetVotes() { this.votes = 0; }
+
+    addVote() { this.votes++; }
+
+    getVotes() { return this.votes; }
 
     isResponded() {
         return this.responded;
